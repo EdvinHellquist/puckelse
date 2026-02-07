@@ -69,10 +69,7 @@ export function FreestyleSpiritClient({
 
   const toggleSection = (key: string) =>
     setOpenSection((curr) => (curr === key ? null : key));
-
-  // Hall of Fame: räkna dynamiskt från ALLA säsonger
   const hallStats = useMemo(() => {
-    console.log(seasons.map(s => s.worldCupResults))
     const allResults: SeasonResult[] = seasons.flatMap((s) => [
       ...(s.osResults ?? []),
       ...(s.vmResults ?? []),

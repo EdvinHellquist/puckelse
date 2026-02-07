@@ -218,4 +218,12 @@ export const queryLegendSkiers = defineQuery(`
   }
 `);
 
+export const queryPageBySlug = `
+  *[_type in ["page"] && slug.current == $slug][0]{
+    _id,
+    _type,
+    pageBuilder
+  }
+`;
+
 

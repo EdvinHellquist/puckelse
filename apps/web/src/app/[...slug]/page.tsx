@@ -1,6 +1,6 @@
 import { Logger } from "@workspace/logger";
 import { client } from "@workspace/sanity/client";
-import { querySlugPagePaths } from "@workspace/sanity/query";
+import { querySlugPagePaths, queryPageBySlug } from "@workspace/sanity/query";
 import { notFound } from "next/navigation";
 
 import { PageBuilder } from "@/components/pagebuilder";
@@ -11,33 +11,46 @@ const logger = new Logger("PageSlug");
 async function fetchSlugPagePaths() {
   try {
     const slugs = await client.fetch(querySlugPagePaths);
+    if (!Array.isArray(slugs) || slugs.length === 0) return [];
 
-    // If no slugs found, return empty array to prevent build errors
-    if (!Array.isArray(slugs) || slugs.length === 0) {
-      return [];
-    }
-
-    const paths: { slug: string[] }[] = [];
-    for (const slug of slugs) {
-      if (!slug) {
-        continue;
-      }
-      const parts = slug.split("/").filter(Boolean);
-      paths.push({ slug: parts });
-    }
-    return paths;
+    return slugs
+      .filter(Boolean)
+      .map((slug: string) => ({ slug: slug.split("/").filter(Boolean) }));
   } catch (error) {
     logger.error("Error fetching slug paths", error);
-    // Return empty array to allow build to continue
     return [];
   }
 }
 
-
 export async function generateStaticParams() {
-  const paths = await fetchSlugPagePaths();
-  return paths;
+  return await fetchSlugPagePaths();
 }
 
-// Allow dynamic params for paths not generated at build time
-export const dynamicParams = true
+export const dynamicParams = true;
+
+type PageProps = {
+  params: { slug?: string[] };
+};
+
+export async function generateMetadata({ params }: PageProps) {
+  const slug = (params.slug ?? []).join("/");
+  return getSEOMetadata({ slug });
+}
+
+export default async function SlugPage({ params }: PageProps) {
+  const slug = (params.slug ?? []).join("/");
+
+  if (!slug) return notFound();
+
+  const page = await client.fetch(queryPageBySlug, { slug });
+
+  if (!page?._id) return notFound();
+
+  return (
+    <PageBuilder
+      id={page._id}
+      type={page._type}
+      pageBuilder={page.pageBuilder ?? []}
+    />
+  );
+}

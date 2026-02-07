@@ -215,6 +215,9 @@ export const queryLegendSkiers = defineQuery(`
     osMedals,
     vmMedals,
     wcWins,
+    jvmMedals,
+    ecWins,
+    smMedals,
     photo { ${imageFields} }
   }
 `);

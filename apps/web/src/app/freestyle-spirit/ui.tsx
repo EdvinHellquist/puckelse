@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Award, ChevronLeft, ChevronRight, ChevronDown, Trophy, Video } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
@@ -62,6 +62,9 @@ type Legend = {
   osMedals?: number;
   vmMedals?: number;
   wcWins?: number;
+  jvmMedals?: number;
+  ecWins?: number;
+  smMedals?: number;
   photo?: Img;
 };
 
@@ -85,7 +88,6 @@ export function FreestyleSpiritClient({
 
   // Hall of Fame: räkna dynamiskt från ALLA säsonger
   const hallStats = useMemo(() => {
-    console.log(seasons.map(s => s.worldCupResults))
     const allResults: SeasonResult[] = seasons.flatMap((s) => [
       ...(s.osResults ?? []),
       ...(s.vmResults ?? []),
@@ -414,6 +416,18 @@ function StatCard({ title, value, icon }: { title: string; value: number; icon: 
 function LegendCarousel({ legends }: { legends: Legend[] }) {
   const [index, setIndex] = useState(0);
 
+  useEffect(() => {
+  if (!legends.length) return;
+
+  const interval = setInterval(() => {
+    setIndex((current) =>
+      current >= legends.length - 1 ? 0 : current + 1
+    );
+  }, 15000); // 15 sek
+
+  return () => clearInterval(interval);
+}, [legends.length]);
+
   const safeIndex = Math.min(Math.max(index, 0), legends.length - 1);
   const item = legends[safeIndex] ? legends[safeIndex] : {  _id: 0,
   name: "Inget",
@@ -422,22 +436,20 @@ function LegendCarousel({ legends }: { legends: Legend[] }) {
   osMedals: 0,
   vmMedals: 0,
   wcWins: 0,
+  jvmMedals: 0,
+  ecWins: 0,
+  smMedals: 0,
   photo: ""};
 
-  const prev = () => setIndex((i) => Math.max(0, i - 1));
-  const next = () => setIndex((i) => Math.min(legends.length - 1, i + 1));
+const prev = () => setIndex((i) => (i <= 0 ? legends.length - 1 : i - 1));
+
+const next = () => setIndex((i) => (i >= legends.length - 1 ? 0 : i + 1));
 
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-6">
         <div className="flex items-center justify-between gap-3 mb-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={prev}
-            disabled={safeIndex === 0}
-            aria-label="Föregående"
-          >
+            <Button variant="outline" size="icon" onClick={prev} aria-label="Föregående">
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
@@ -445,20 +457,14 @@ function LegendCarousel({ legends }: { legends: Legend[] }) {
             {safeIndex + 1} / {legends.length}
           </div>
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={next}
-            disabled={safeIndex === legends.length - 1}
-            aria-label="Nästa"
-          >
+          <Button variant="outline" size="icon" onClick={next} aria-label="Nästa">
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 items-start">
           <div className="relative overflow-hidden rounded-xl shadow">
-            <div className="relative aspect-4/5">
+            <div className="relative aspect-4/3">
               {item.photo ? (
                 <SanityImage image={item.photo} fill className="object-cover" />
               ) : (
@@ -477,6 +483,9 @@ function LegendCarousel({ legends }: { legends: Legend[] }) {
               <MiniStat label="OS" value={item.osMedals ?? 0} />
               <MiniStat label="VM" value={item.vmMedals ?? 0} />
               <MiniStat label="WC" value={item.wcWins ?? 0} />
+              <MiniStat label="JWC" value={item.jvmMedals ?? 0} />
+              <MiniStat label="EC" value={item.ecWins ?? 0} />
+              <MiniStat label="SM" value={item.smMedals ?? 0} />
             </div>
 
             {item.bio ? (

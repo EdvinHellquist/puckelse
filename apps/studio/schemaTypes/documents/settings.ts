@@ -8,21 +8,9 @@ const socialLinks = defineField({
   type: "object",
   fields: [
     defineField({
-      name: "linkedin",
-      title: "LinkedIn URL",
-      description: "Full URL to your LinkedIn profile/company page",
-      type: "string",
-    }),
-    defineField({
       name: "facebook",
       title: "Facebook URL",
       description: "Full URL to your Facebook profile/page",
-      type: "string",
-    }),
-    defineField({
-      name: "twitter",
-      title: "Twitter/X URL",
-      description: "Full URL to your Twitter/X profile",
       type: "string",
     }),
     defineField({

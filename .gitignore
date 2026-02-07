@@ -38,3 +38,7 @@ npm-debug.log*
 
 # Claude
 .claude/settings.local.json
+
+# Own
+.cursor/*
+.vscode/*

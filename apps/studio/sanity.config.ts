@@ -56,11 +56,8 @@ export default defineConfig({
         return prev.filter(
           (template) =>
             ![
-              "homePage",
-              "navbar",
               "footer",
               "settings",
-              "blogIndex",
               "assist.instruction.context",
               "media.tag",
             ].includes(template?.templateId)

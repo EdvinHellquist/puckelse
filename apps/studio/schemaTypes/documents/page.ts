@@ -1,86 +1,59 @@
+// apps/studio/schemaTypes/documents/page.ts
 import { DocumentIcon } from "@sanity/icons";
 import { defineField, defineType } from "sanity";
 
-import {
-  documentSlugField,
-  imageWithAltField,
-  pageBuilderField,
-} from "@/schemaTypes/common";
-import { GROUP, GROUPS } from "@/utils/constant";
-import { ogFields } from "@/utils/og-fields";
-import { seoFields } from "@/utils/seo-fields";
+import { documentSlugField, imageWithAltField } from "@/schemaTypes/common";
 
 export const page = defineType({
   name: "page",
   title: "Page",
   type: "document",
   icon: DocumentIcon,
-  description:
-    "Create a new page for your website, like an 'About Us' or 'Contact' page. Each page has its own web address and content that you can customize.",
-  groups: GROUPS,
+  description: "A basic page with title, slug, description and content.",
   fields: [
     defineField({
       name: "title",
       type: "string",
       title: "Title",
-      description:
-        "The main heading that appears at the top of your page and in browser tabs",
-      group: GROUP.MAIN_CONTENT,
       validation: (Rule) => Rule.required().error("A page title is required"),
     }),
+
     defineField({
       name: "description",
       type: "text",
-      title: "Description",
-      description:
-        "A brief summary of what this page is about. This text helps search engines understand your page and may appear in search results.",
+      title: "SEO description",
+      description: "Short summary for search engines (recommended 140–160 chars).",
       rows: 3,
-      group: GROUP.MAIN_CONTENT,
-      validation: (rule) => [
-        rule
-          .min(140)
-          .warning(
-            "The meta description should be at least 140 characters for optimal SEO visibility in search results"
-          ),
-        rule
-          .max(160)
-          .warning(
-            "The meta description should not exceed 160 characters as it will be truncated in search results"
-          ),
-      ],
+      validation: (Rule) =>
+        Rule.max(160).warning("Try to keep this under 160 characters."),
     }),
-    documentSlugField("page", {
-      group: GROUP.MAIN_CONTENT,
-    }),
+
+    documentSlugField(),
+
     imageWithAltField({
-      title: "Image",
-      description:
-        "A main picture for this page that can be used when sharing on social media or in search results",
-      group: GROUP.MAIN_CONTENT,
+      name: "image",
+      title: "Main image",
+      description: "Optional image used for sharing/SEO previews.",
     }),
-    pageBuilderField,
-    ...seoFields.filter((field) => field.name !== "seoHideFromLists"),
-    ...ogFields,
+
+    defineField({
+      name: "content",
+      type: "richText",
+      title: "Content",
+      description: "Optional page content (simple rich text).",
+    }),
   ],
+
   preview: {
     select: {
       title: "title",
       slug: "slug.current",
       media: "image",
-      isPrivate: "seoNoIndex",
-      hasPageBuilder: "pageBuilder",
     },
-    prepare: ({ title, slug, media, isPrivate, hasPageBuilder }) => {
-      const statusEmoji = isPrivate ? "🔒" : "🌎";
-      const builderEmoji = hasPageBuilder?.length
-        ? `🧱 ${hasPageBuilder.length}`
-        : "🏗️";
-
-      return {
-        title: `${title || "Untitled Page"}`,
-        subtitle: `${statusEmoji} ${builderEmoji} | 🔗 ${slug || "no-slug"}`,
-        media,
-      };
-    },
+    prepare: ({ title, slug, media }) => ({
+      title: title || "Untitled page",
+      subtitle: slug ? `/${slug}` : "No slug",
+      media,
+    }),
   },
 });

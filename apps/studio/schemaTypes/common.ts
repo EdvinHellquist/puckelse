@@ -1,94 +1,25 @@
-import {
-  defineField,
-  type ImageRule,
-  type ImageValue,
-  type ValidationBuilder,
-} from "sanity";
+// apps/studio/schemaTypes/common.ts
+import { defineField, type ImageRule, type ImageValue, type ValidationBuilder } from "sanity";
 
-import { PathnameFieldComponent } from "@/components/slug-field-component";
-import { GROUP } from "@/utils/constant";
-import {
-  createSlugValidator,
-  getDocumentTypeConfig,
-} from "@/utils/slug-validation";
+// Minimal, template-fri helpers.
+// Behåll gärna dessa – de är bra när du senare kopplar in innehåll igen.
 
 export const richTextField = defineField({
   name: "richText",
   type: "richText",
-  description:
-    "A text editor that lets you add formatting like bold text, links, and bullet points",
+  title: "Rich text",
+  description: "Text with formatting (bold, links, lists, etc).",
 });
-
-export const buttonsField = defineField({
-  name: "buttons",
-  type: "array",
-  of: [{ type: "button" }],
-  description:
-    "Add one or more clickable buttons that visitors can use to navigate your website",
-});
-
-export const pageBuilderField = defineField({
-  name: "pageBuilder",
-  group: GROUP.MAIN_CONTENT,
-  type: "pageBuilder",
-  description:
-    "Build your page by adding different sections like text, images, and other content blocks",
-});
-
-export const iconField = defineField({
-  name: "icon",
-  title: "Icon",
-  options: {
-    // storeSvg: true,
-    // providers: ["fi"],
-  },
-  // type: "iconPicker",
-  type: "lucide-icon",
-  description:
-    "Choose a small picture symbol to represent this item, like a home icon or shopping cart",
-});
-
-export const documentSlugField = (
-  documentType: string,
-  options: {
-    group?: string;
-    description?: string;
-    title?: string;
-  } = {}
-) => {
-  const {
-    group,
-    description = `The web address where people can find your ${documentType} (automatically created from title)`,
-    title = "URL",
-  } = options;
-
-  return defineField({
-    name: "slug",
-    type: "slug",
-    title,
-    description,
-    group,
-    components: {
-      field: PathnameFieldComponent,
-    },
-    validation: (Rule) => [
-      Rule.required().error("A URL slug is required"),
-      Rule.custom(createSlugValidator(getDocumentTypeConfig(documentType))),
-    ],
-  });
-};
 
 export const imageWithAltField = ({
   name = "image",
   title = "Image",
-  description = "An image, make sure to add an alt text and use the hotspot tool to ensure if image is cropped it highlights the focus point",
+  description = "Add an image and an alt text. Use hotspot to control crop focus.",
   validation,
-  group,
 }: {
   name?: string;
   title?: string;
   description?: string;
-  group?: string;
   validation?: ValidationBuilder<ImageRule, ImageValue>;
 } = {}) =>
   defineField({
@@ -96,18 +27,35 @@ export const imageWithAltField = ({
     type: "image",
     title,
     description,
-    group,
     validation,
-    options: {
-      hotspot: true,
-    },
+    options: { hotspot: true },
     fields: [
       defineField({
         name: "alt",
         type: "string",
-        title: "Alt Text",
-        description:
-          "The text that describes the image for screen readers and search engines",
+        title: "Alt text",
+        description: "Describe the image for screen readers and SEO.",
       }),
     ],
+  });
+
+export const documentSlugField = ({
+  name = "slug",
+  title = "URL",
+  description = "Automatically generated from title, but can be edited.",
+}: {
+  name?: string;
+  title?: string;
+  description?: string;
+} = {}) =>
+  defineField({
+    name,
+    type: "slug",
+    title,
+    description,
+    options: {
+      source: "title",
+      maxLength: 96,
+    },
+    validation: (Rule) => Rule.required().error("A URL slug is required"),
   });

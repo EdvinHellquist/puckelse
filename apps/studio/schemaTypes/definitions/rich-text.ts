@@ -26,14 +26,22 @@ const richTextMembers = [
     marks: {
       annotations: [
         {
-          name: "customLink",
+          name: "link",
           type: "object",
-          title: "Internal/External Link",
+          title: "Link",
           icon: LinkIcon,
           fields: [
             defineField({
-              name: "customLink",
-              type: "customUrl",
+              name: "href",
+              type: "url",
+              title: "URL",
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "blank",
+              type: "boolean",
+              title: "Open in new tab",
+              initialValue: true,
             }),
           ],
         },
@@ -50,14 +58,17 @@ const richTextMembers = [
     title: "Image",
     type: "image",
     icon: ImageIcon,
-    options: {
-      hotspot: true,
-    },
+    options: { hotspot: true },
     fields: [
       defineField({
         name: "caption",
         type: "string",
         title: "Caption Text",
+      }),
+      defineField({
+        name: "alt",
+        type: "string",
+        title: "Alt text",
       }),
     ],
   }),

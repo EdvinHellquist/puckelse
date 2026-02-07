@@ -5,7 +5,7 @@ import { documents, singletons } from "@/schemaTypes/documents/index";
 import { richText } from "@/schemaTypes/definitions/rich-text";
 import { komIgangBenefit } from "./definitions/kom-igang-benefit";
 import { seasonResult } from "./definitions/seasonResult";
-import { recapItem } from "./definitions/recapItem";
+import { seasonLinkCard } from "./definitions/seasonLinkCard";
 
 export const schemaTypes = [
   ...documents,
@@ -13,7 +13,7 @@ export const schemaTypes = [
   komIgangBenefit,
   richText,
   seasonResult,
-  recapItem,
+  seasonLinkCard
 ];
 
 export default schemaTypes;

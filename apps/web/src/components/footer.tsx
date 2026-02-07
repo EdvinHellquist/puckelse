@@ -13,7 +13,7 @@ export default function Footer() {
               PUCKEL
             </h3>
             <p className="text-sm text-muted-foreground">
-              Svensk puckelåkning - där action möter precision på snön.
+              Svensk puckelåkning - där action möter precision på snö
             </p>
           </div>
 

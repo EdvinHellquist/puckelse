@@ -47,7 +47,6 @@ export const season = defineType({
       of: [defineArrayMember({ type: "seasonResult" })],
     }),
 
-    // Om du vill räkna OS/VM dynamiskt också:
     defineField({
       name: "osResults",
       title: "OS resultat",
@@ -59,6 +58,12 @@ export const season = defineType({
       title: "VM resultat",
       type: "array",
       of: [defineArrayMember({ type: "seasonResult" })],
+    }),
+    defineField({
+      name: "seasonCards",
+      title: "Säsongsvideos",
+      type: "array",
+      of: [{ type: "seasonLinkCard" }],
     }),
   ],
   orderings: [

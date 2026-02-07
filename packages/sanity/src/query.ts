@@ -195,6 +195,7 @@ export const querySeasons = defineQuery(`
     ymgResults[]{ competition, date, discipline, skier, place, level },
     osResults[]{ competition, date, discipline, skier, place, level },
     vmResults[]{ competition, date, discipline, skier, place, level },
+    seasonCards[]{ _key, badge, title, description, href, variant, thumbnail { ${imageFields} }},
     recapItems[]{
       category,
       title,

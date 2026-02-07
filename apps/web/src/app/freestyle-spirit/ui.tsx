@@ -10,6 +10,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@workspace/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table";
 
 import { SanityImage } from "@/components/sanity-image";
+import Link from "next/link";
+import { cn } from "@workspace/ui/lib/utils";
 
 type Img = any;
 
@@ -22,6 +24,16 @@ type SeasonResult = {
   level: "WC" | "EC" | "SC" | "YMG" | "VM" | "OS" | "OTHER";
 };
 
+type SeasonCard = {
+  _key: string;
+  badge: string;
+  title: string;
+  description?: string;
+  href: string;
+  variant?: "primary" | "accent";
+  thumbnail?: Img;
+};
+
 type Season = {
   _id: string;
   label: string;
@@ -32,6 +44,7 @@ type Season = {
   ymgResults?: SeasonResult[];
   osResults?: SeasonResult[];
   vmResults?: SeasonResult[];
+  seasonCards?: SeasonCard[];
   recapItems?: {
     category: string;
     title: string;
@@ -69,7 +82,10 @@ export function FreestyleSpiritClient({
 
   const toggleSection = (key: string) =>
     setOpenSection((curr) => (curr === key ? null : key));
+
+  // Hall of Fame: räkna dynamiskt från ALLA säsonger
   const hallStats = useMemo(() => {
+    console.log(seasons.map(s => s.worldCupResults))
     const allResults: SeasonResult[] = seasons.flatMap((s) => [
       ...(s.osResults ?? []),
       ...(s.vmResults ?? []),
@@ -158,6 +174,26 @@ export function FreestyleSpiritClient({
             </div>
 
             <div className="space-y-4">
+              {season?.osResults?.length ? (
+                <ResultCollapsible
+                title="OS"
+                tag="OS"
+                border="border-l-primary"
+                open={openSection === "os"}
+                onToggle={() => toggleSection("os")}
+                results={season?.osResults ?? []}
+              />) : null}
+
+              {season?.vmResults?.length ? (
+                <ResultCollapsible
+                title="VM"
+                tag="VM"
+                border="border-l-primary"
+                open={openSection === "vm"}
+                onToggle={() => toggleSection("vm")}
+                results={season?.vmResults ?? []}
+              />) : null}
+
               <ResultCollapsible
                 title="Världscup"
                 tag="WorldCup"
@@ -210,94 +246,41 @@ export function FreestyleSpiritClient({
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* WorldCup Säsongssammanfattning */}
-              <Card className="overflow-hidden group hover:shadow-xl transition-all">
-                <div className="aspect-video bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Video className="w-12 h-12 text-primary" />
-                </div>
-                <CardContent className="pt-4">
-                  <Badge variant="outline" className="mb-2">WorldCup</Badge>
-                  <h3 className="font-semibold mb-2">Säsongssammanfattning WC</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Höjdpunkter från världscupsäsongen 2024/25
-                  </p>
-                </CardContent>
-              </Card>
+              {/* Säsongssammanfattning */}
+              {season?.seasonCards?.map((card) => (
+                <Card key={card._key} className="overflow-hidden group hover:shadow-xl transition-all">
+                  <Link href={card.href} className="block">
+                    <div
+                      className={cn(
+                        "aspect-video flex items-center justify-center group-hover:scale-105 transition-transform",
+                        card.variant === "accent"
+                          ? "bg-linear-to-br from-accent/20 to-primary/20"
+                          : "bg-linear-to-br from-primary/20 to-accent/20"
+                      )}
+                    >
+                      {card.thumbnail ? (
+                        <div className="relative h-full w-full">
+                          <SanityImage image={card.thumbnail} fill className="object-cover" />
+                        </div>
+                      ) : (
+                        <Video className={cn("w-12 h-12", (card.variant ?? "primary") === "accent" ? "text-accent" : "text-primary")} />
+                      )}
+                    </div>
 
-              {/* EuropaCup Säsongssammanfattning */}
-              <Card className="overflow-hidden group hover:shadow-xl transition-all">
-                <div className="aspect-video bg-linear-to-br from-accent/20 to-primary/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Video className="w-12 h-12 text-accent" />
-                </div>
-                <CardContent className="pt-4">
-                  <Badge variant="outline" className="mb-2">EuropaCup</Badge>
-                  <h3 className="font-semibold mb-2">Säsongssammanfattning EC</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Höjdpunkter från EuropaCup-säsongen
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Svenska Cupen Säsongssammanfattning */}
-              <Card className="overflow-hidden group hover:shadow-xl transition-all">
-                <div className="aspect-video bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Video className="w-12 h-12 text-primary" />
-                </div>
-                <CardContent className="pt-4">
-                  <Badge variant="outline" className="mb-2">Svenska Cupen</Badge>
-                  <h3 className="font-semibold mb-2">Säsongssammanfattning SC</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Höjdpunkter från Svenska Cupen
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* YMG Säsongssammanfattning */}
-              <Card className="overflow-hidden group hover:shadow-xl transition-all">
-                <div className="aspect-video bg-linear-to-br from-accent/20 to-primary/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Video className="w-12 h-12 text-accent" />
-                </div>
-                <CardContent className="pt-4">
-                  <Badge variant="outline" className="mb-2">YMG</Badge>
-                  <h3 className="font-semibold mb-2">Säsongssammanfattning YMG</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Våra framtidsstjärnor i aktion
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* SM */}
-              <Card className="overflow-hidden group hover:shadow-xl transition-all">
-                <div className="aspect-video bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Video className="w-12 h-12 text-primary" />
-                </div>
-                <CardContent className="pt-4">
-                  <Badge variant="outline" className="mb-2">SM</Badge>
-                  <h3 className="font-semibold mb-2">Svenska Mästerskapen</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Höjdpunkter från SM 2025
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Årets bästa bilder */}
-              <Card className="overflow-hidden group hover:shadow-xl transition-all">
-                <div className="aspect-video bg-linear-to-br from-accent/20 to-primary/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Video className="w-12 h-12 text-accent" />
-                </div>
-                <CardContent className="pt-4">
-                  <Badge variant="outline" className="mb-2">Galleri</Badge>
-                  <h3 className="font-semibold mb-2">Årets bästa bilder</h3>
-                  <p className="text-sm text-muted-foreground">
-                    De mest spektakulära bilderna från säsongen
-                  </p>
-                </CardContent>
-              </Card>
+                    <CardContent className="pt-4">
+                      <Badge variant="outline" className="mb-2">{card.badge}</Badge>
+                      <h3 className="font-semibold mb-2">{card.title}</h3>
+                      {card.description ? (
+                        <p className="text-sm text-muted-foreground">{card.description}</p>
+                      ) : null}
+                    </CardContent>
+                  </Link>
+                </Card>
+              ))}
             </div>
           </div>
         </div>
       </section>
-
       {/* Hall of Fame (dynamiskt) */}
       <section className="py-16">
         <div className="container mx-auto px-4">
@@ -305,7 +288,7 @@ export function FreestyleSpiritClient({
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Hall of Fame</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Summering baserad på resultaten som finns inlagda i Sanity.
+                Här lyfter vi legendariska åkare och eldsjälar.
               </p>
             </div>
 

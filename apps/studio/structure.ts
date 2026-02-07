@@ -1,5 +1,5 @@
 // apps/studio/structure.ts
-import { DollarSign, File, HandMetal, HomeIcon, ListStart, Newspaper, Settings2 } from "lucide-react";
+import { DollarSign, HandMetal, HomeIcon, ListStart, Newspaper, Settings2 } from "lucide-react";
 import type { StructureBuilder, StructureResolverContext } from "sanity/structure";
 
 export const structure = (S: StructureBuilder, _context: StructureResolverContext) =>

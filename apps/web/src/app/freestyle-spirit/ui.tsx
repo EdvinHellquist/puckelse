@@ -72,6 +72,7 @@ export function FreestyleSpiritClient({
 
   // Hall of Fame: räkna dynamiskt från ALLA säsonger
   const hallStats = useMemo(() => {
+    console.log(seasons.map(s => s.worldCupResults))
     const allResults: SeasonResult[] = seasons.flatMap((s) => [
       ...(s.osResults ?? []),
       ...(s.vmResults ?? []),
@@ -161,7 +162,7 @@ export function FreestyleSpiritClient({
 
             <div className="space-y-4">
               <ResultCollapsible
-                title={`Världscup-resultat ${season?.label ?? ""}`}
+                title="Världscup"
                 tag="WorldCup"
                 border="border-l-primary"
                 open={openSection === "wc"}
@@ -170,7 +171,7 @@ export function FreestyleSpiritClient({
               />
 
               <ResultCollapsible
-                title="EuropaCup-resultat"
+                title="Europacup"
                 tag="EuropaCup"
                 border="border-l-accent"
                 open={openSection === "ec"}
@@ -425,7 +426,6 @@ function StatCard({ title, value, icon }: { title: string; value: number; icon: 
         </div>
         <h3 className="font-bold text-xl mb-2">{title}</h3>
         <p className="text-3xl font-bold text-primary mb-2">{value}</p>
-        <p className="text-sm text-muted-foreground">Beräknat från resultaten i Sanity</p>
       </CardContent>
     </Card>
   );

@@ -28,172 +28,6 @@ const imageFragment = /* groq */ `
   }
 `;
 
-const customLinkFragment = /* groq */ `
-  ...customLink{
-    openInNewTab,
-    "href": select(
-      type == "internal" => internal->slug.current,
-      type == "external" => external,
-      "#"
-    ),
-  }
-`;
-
-const markDefsFragment = /* groq */ `
-  markDefs[]{
-    ...,
-    ${customLinkFragment}
-  }
-`;
-
-const richTextFragment = /* groq */ `
-  richText[]{
-    ...,
-    _type == "block" => {
-      ...,
-      ${markDefsFragment}
-    },
-    _type == "image" => {
-      ${imageFields},
-      "caption": caption
-    }
-  }
-`;
-
-const blogAuthorFragment = /* groq */ `
-  authors[0]->{
-    _id,
-    name,
-    position,
-    ${imageFragment}
-  }
-`;
-
-const blogCardFragment = /* groq */ `
-  _type,
-  _id,
-  title,
-  description,
-  "slug":slug.current,
-  orderRank,
-  ${imageFragment},
-  publishedAt,
-  ${blogAuthorFragment}
-`;
-
-const buttonsFragment = /* groq */ `
-  buttons[]{
-    text,
-    variant,
-    _key,
-    _type,
-    "openInNewTab": url.openInNewTab,
-    "href": select(
-      url.type == "internal" => url.internal->slug.current,
-      url.type == "external" => url.external,
-      url.href
-    ),
-  }
-`;
-
-// Page builder block fragments
-const ctaBlock = /* groq */ `
-  _type == "cta" => {
-    ...,
-    ${richTextFragment},
-    ${buttonsFragment},
-  }
-`;
-const imageLinkCardsBlock = /* groq */ `
-  _type == "imageLinkCards" => {
-    ...,
-    ${richTextFragment},
-    ${buttonsFragment},
-    "cards": array::compact(cards[]{
-      ...,
-      "openInNewTab": url.openInNewTab,
-      "href": select(
-        url.type == "internal" => url.internal->slug.current,
-        url.type == "external" => url.external,
-        url.href
-      ),
-      ${imageFragment},
-    })
-  }
-`;
-
-const heroBlock = /* groq */ `
-  _type == "hero" => {
-    ...,
-    ${imageFragment},
-    ${buttonsFragment},
-    ${richTextFragment}
-  }
-`;
-
-const faqFragment = /* groq */ `
-  "faqs": array::compact(faqs[]->{
-    title,
-    _id,
-    _type,
-    ${richTextFragment}
-  })
-`;
-
-const faqAccordionBlock = /* groq */ `
-  _type == "faqAccordion" => {
-    ...,
-    ${faqFragment},
-    link{
-      ...,
-      "openInNewTab": url.openInNewTab,
-      "href": select(
-        url.type == "internal" => url.internal->slug.current,
-        url.type == "external" => url.external,
-        url.href
-      )
-    }
-  }
-`;
-
-const subscribeNewsletterBlock = /* groq */ `
-  _type == "subscribeNewsletter" => {
-    ...,
-    "subTitle": subTitle[]{
-      ...,
-      ${markDefsFragment}
-    },
-    "helperText": helperText[]{
-      ...,
-      ${markDefsFragment}
-    }
-  }
-`;
-
-const featureCardsIconBlock = /* groq */ `
-  _type == "featureCardsIcon" => {
-    ...,
-    ${richTextFragment},
-    "cards": array::compact(cards[]{
-      ...,
-      ${richTextFragment},
-    })
-  }
-`;
-
-const pageBuilderFragment = /* groq */ `
-  pageBuilder[]{
-    ...,
-    _type,
-    ${ctaBlock},
-    ${heroBlock},
-    ${faqAccordionBlock},
-    ${featureCardsIconBlock},
-    ${subscribeNewsletterBlock},
-    ${imageLinkCardsBlock}
-  }
-`;
-
 /**
  * Query to extract a single image from a page document
  * This is used as a type reference only and not for actual data fetching
@@ -205,72 +39,10 @@ export const queryImageType = defineQuery(`
   }.image
 `);
 
-export const queryHomePageData =
-  defineQuery(`*[_type == "homePage" && _id == "homePage"][0]{
-    ...,
-    _id,
-    _type,
-    "slug": slug.current,
-    title,
-    description,
-    ${pageBuilderFragment}
-  }`);
-
-export const querySlugPageData = defineQuery(`
-  *[_type == "page" && slug.current == $slug][0]{
-    ...,
-    "slug": slug.current,
-    ${pageBuilderFragment}
-  }
-  `);
-
 export const querySlugPagePaths = defineQuery(`
   *[_type == "page" && defined(slug.current)].slug.current
 `);
 
-export const queryBlogIndexPageData = defineQuery(`
-  *[_type == "blogIndex"][0]{
-    ...,
-    _id,
-    _type,
-    title,
-    description,
-    "displayFeaturedBlogs" : displayFeaturedBlogs == "yes",
-    "featuredBlogsCount" : featuredBlogsCount,
-    ${pageBuilderFragment},
-    "slug": slug.current
-  }
-`);
-
-export const queryBlogIndexPageBlogs = defineQuery(`
-  *[_type == "blog" && (seoHideFromLists != true)] | order(orderRank asc) [$start...$end]{
-    ${blogCardFragment}
-  }
-`);
-
-export const queryAllBlogDataForSearch = defineQuery(`
-  *[_type == "blog" && defined(slug.current) && (seoHideFromLists != true)]{
-    ${blogCardFragment}
-  }
-`);
-
-export const queryBlogIndexPageBlogsCount = defineQuery(`
-  count(*[_type == "blog" && (seoHideFromLists != true)])
-`);
-export const queryBlogSlugPageData = defineQuery(`
-  *[_type == "blog" && slug.current == $slug][0]{
-    ...,
-    "slug": slug.current,
-    ${blogAuthorFragment},
-    ${imageFragment},
-    ${richTextFragment},
-    ${pageBuilderFragment}
-  }
-`);
-
-export const queryBlogPaths = defineQuery(`
-  *[_type == "blog" && defined(slug.current)].slug.current
-`);
 
 const ogFieldsFragment = /* groq */ `
   _id,
@@ -304,11 +76,6 @@ export const querySlugPageOGData = defineQuery(`
   }
 `);
 
-export const queryBlogPageOGData = defineQuery(`
-  *[_type == "blog" && _id == $id][0]{
-    ${ogFieldsFragment}
-  }
-`);
 
 export const queryGenericPageOGData = defineQuery(`
   *[ defined(slug.current) && _id == $id][0]{
@@ -316,74 +83,7 @@ export const queryGenericPageOGData = defineQuery(`
   }
 `);
 
-export const queryFooterData = defineQuery(`
-  *[_type == "footer" && _id == "footer"][0]{
-    _id,
-    subtitle,
-    columns[]{
-      _key,
-      title,
-      links[]{
-        _key,
-        name,
-        "openInNewTab": url.openInNewTab,
-        "href": select(
-          url.type == "internal" => url.internal->slug.current,
-          url.type == "external" => url.external,
-          url.href
-        ),
-      }
-    }
-  }
-`);
 
-export const queryNavbarData = defineQuery(`
-  *[_type == "navbar" && _id == "navbar"][0]{
-    _id,
-    columns[]{
-      _key,
-      _type == "navbarColumn" => {
-        "type": "column",
-        title,
-        links[]{
-          _key,
-          name,
-          icon,
-          description,
-          "openInNewTab": url.openInNewTab,
-          "href": select(
-            url.type == "internal" => url.internal->slug.current,
-            url.type == "external" => url.external,
-            url.href
-          )
-        }
-      },
-      _type == "navbarLink" => {
-        "type": "link",
-        name,
-        description,
-        "openInNewTab": url.openInNewTab,
-        "href": select(
-          url.type == "internal" => url.internal->slug.current,
-          url.type == "external" => url.external,
-          url.href
-        )
-      }
-    },
-    ${buttonsFragment},
-  }
-`);
-
-export const querySitemapData = defineQuery(`{
-  "slugPages": *[_type == "page" && defined(slug.current)]{
-    "slug": slug.current,
-    "lastModified": _updatedAt
-  },
-  "blogPages": *[_type == "blog" && defined(slug.current)]{
-    "slug": slug.current,
-    "lastModified": _updatedAt
-  }
-}`);
 export const queryGlobalSeoSettings = defineQuery(`
   *[_type == "settings"][0]{
     _id,
@@ -415,10 +115,107 @@ export const querySettingsData = defineQuery(`
   }
 `);
 
-export const queryRedirects = defineQuery(`
-  *[_type == "redirect" && status == "active" && defined(source.current) && defined(destination.current)]{
-    "source":source.current, 
-    "destination":destination.current, 
-    "permanent" : permanent == "true"
+export const queryHomePage = defineQuery(`
+  *[_type == "homePage" && _id == "homePage"][0]{
+    heroTitle,
+    heroSubtitle,
+    heroLead,
+    heroImage{ ${imageFields} },
+    heroLogo{ ${imageFields} }
   }
 `);
+
+export const queryLatestNews = defineQuery(`
+  *[_type == "news"] | order(publishedAt desc)[0]{
+    title,
+    excerpt,
+    publishedAt,
+    link,
+    coverImage{ ${imageFields} }
+  }
+`);
+
+export const queryKomIgangPage = defineQuery(`
+  *[_type == "komIgangPage" && _id == "komIgangPage"][0]{
+    title,
+    subtitle,
+    about{
+      cardTitle,
+      cardBody,
+      image{
+        ${imageFields}
+      }
+    },
+    benefitsTitle,
+    benefits[]{
+      icon,
+      title,
+      text
+    }
+  }
+`)
+
+export const querySponsorerPage = defineQuery(`
+  *[_type == "sponsorerPage" && _id == "sponsorerPage"][0]{
+    title,
+    subtitle,
+    benefitsTitle,
+    packagesTitle,
+    heroImage { ${imageFields} },
+    benefits[]{
+      icon,
+      title,
+      description
+    },
+    packages[]{
+      name,
+      price,
+      featured,
+      features
+    }
+  }
+`);
+
+export const queryFreestyleSpiritPage = defineQuery(`
+  *[_type == "freestyleSpiritPage" && _id == "freestyleSpiritPage"][0]{
+    title,
+    subtitle,
+    heroImage { ${imageFields} }
+  }
+`);
+
+export const querySeasons = defineQuery(`
+  *[_type == "season"] | order(yearStart desc) {
+    _id,
+    label,
+    yearStart,
+    worldCupResults[]{ competition, date, discipline, skier, place, level },
+    europaCupResults[]{ competition, date, discipline, skier, place, level },
+    svenskaCupenResults[]{ competition, date, discipline, skier, place, level },
+    ymgResults[]{ competition, date, discipline, skier, place, level },
+    osResults[]{ competition, date, discipline, skier, place, level },
+    vmResults[]{ competition, date, discipline, skier, place, level },
+    recapItems[]{
+      category,
+      title,
+      description,
+      url,
+      thumbnail { ${imageFields} }
+    }
+  }
+`);
+
+export const queryLegendSkiers = defineQuery(`
+  *[_type == "legendSkier"] | order(name asc) {
+    _id,
+    name,
+    era,
+    bio,
+    osMedals,
+    vmMedals,
+    wcWins,
+    photo { ${imageFields} }
+  }
+`);
+
+

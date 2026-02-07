@@ -28,7 +28,7 @@ type ProcessedImageData = {
 
 export type SanityImageProps = {
   readonly image: SanityImageData;
-} & Omit<WrapperProps<"img">, "id">;
+} & Omit<WrapperProps<"img">, "id" | "src">;
 
 // Base URL construction
 export const SANITY_BASE_URL =
@@ -108,3 +108,37 @@ export function processImageData(
     ...(crop && { crop }),
   };
 }
+
+// Converts Sanity asset id (image-<hash>-<WxH>-<ext>) to a CDN filename (<hash>-<WxH>.<ext>)
+export function sanityCdnUrlFromId(
+  id: string,
+  options?: { w?: number; h?: number; q?: number; fit?: "crop" | "clip" | "fill" | "max" | "min" | "scale" }
+) {
+  // id example: "image-abc123-2000x1333-jpg"
+  if (!id.startsWith("image-")) {
+    return null;
+  }
+
+  const parts = id.replace("image-", "").split("-");
+  if (parts.length < 3) {
+    return null;
+  }
+
+  const format = parts[parts.length - 1]; // jpg/png/webp
+  const dims = parts[parts.length - 2];   // 2000x1333
+  const hash = parts.slice(0, -2).join("-");
+
+  const filename = `${hash}-${dims}.${format}`;
+  const url = new URL(`${SANITY_BASE_URL}${filename}`);
+
+  if (options?.w) url.searchParams.set("w", String(options.w));
+  if (options?.h) url.searchParams.set("h", String(options.h));
+  if (options?.q) url.searchParams.set("q", String(options.q));
+  if (options?.fit) url.searchParams.set("fit", options.fit);
+
+  // You can add auto=format if you want:
+  url.searchParams.set("auto", "format");
+
+  return url.toString();
+}
+

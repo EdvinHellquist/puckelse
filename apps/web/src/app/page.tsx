@@ -1,44 +1,76 @@
-import { Card, CardContent } from "@workspace/ui/components/card"
-import { Button } from "@workspace/ui/components/button"
-import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
+import { sanityFetch } from "@workspace/sanity/live";
+import { queryHomePage, queryLatestNews } from "@workspace/sanity/query";
+
+import { Card, CardContent } from "@workspace/ui/components/card";
+import { Button } from "@workspace/ui/components/button";
+
+import { SanityImage } from "@/components/sanity-image";
 
 
-export default function Page() {
+export default async function Page() {
+  const [{ data: home }, { data: news }] = await Promise.all([
+    sanityFetch({ query: queryHomePage }),
+    sanityFetch({ query: queryLatestNews }),
+  ]);
+
+  const heroTitle = home?.heroTitle ?? "Svensk Puckel";
+  const heroSubtitle = home?.heroSubtitle ?? "Svensk puckelåkning";
+  const heroLead =
+    home?.heroLead ??
+    "Upplev spänningen i moguls - där fart, hopp och precision möts på snön. Med parra som ny OS-sport 2026 är vi på väg mot nya höjder!";
   return (
     <div className="min-h-screen bg-background">
-       <section className="relative pt-32 pb-20 overflow-hidden">
+        <section className="relative overflow-hidden pt-32 pb-20">
         <div className="absolute inset-0">
-          <img 
-            src={"/images/hero-new.jpg"} 
-            alt="Freestyle moguls skiing action"
-            className="w-full h-full object-cover"
-          />
+          {home?.heroImage ? (
+            <div className="absolute inset-0">
+              <SanityImage image={home.heroImage} fill className="object-cover" />
+            </div>
+          ) : (
+            <img
+              src="/images/hero-new.jpg"
+              alt="Freestyle moguls skiing action"
+              className="h-full w-full object-cover"
+            />
+          )}
+
           <div className="absolute inset-0 bg-linear-to-b from-background/60 via-background/80 to-background" />
         </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center animate-fade-in">
-            <img 
-              src={"/images/logo-stsm.jpg"} 
-              alt="Ski Team Sweden Moguls logo"
-              className="w-32 h-auto mx-auto mb-6"
-            />
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-linear-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-              Svensk Puckel
+
+        <div className="container mx-auto relative z-10 px-4">
+          <div className="mx-auto max-w-4xl text-center animate-fade-in">
+            <div className="mx-auto mb-6 w-32">
+              {home?.heroLogo ? (
+                <SanityImage image={home.heroLogo} width={256} height={320} className="mx-auto h-auto w-full" />
+              ) : (
+                <img
+                  src="/images/logo-stsm.jpg"
+                  alt="Ski Team Sweden Moguls logo"
+                  className="mx-auto h-auto w-32"
+                />
+              )}
+            </div>
+
+            <h1 className="mb-6 text-5xl font-bold md:text-7xl bg-linear-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
+              {heroTitle}
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-4">
-              Svensk puckelåkning
+
+            <p className="mb-4 text-xl md:text-2xl text-muted-foreground">
+              {heroSubtitle}
             </p>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Upplev spänningen i moguls - där fart, hopp och precision möts på snön. 
-              Med parra som ny OS-sport 2026 är vi på väg mot nya höjder!
+
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
+              {heroLead}
             </p>
           </div>
         </div>
       </section>
 
       {/* Tre Huvudområden */}
-      <section className="py-20 bg-muted/50">
+      <section className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Här hittar du information om:
@@ -124,29 +156,41 @@ export default function Page() {
       </section>
 
       {/* Info Section */}
-      <section className="py-20">
+      <section className="pt-16">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center mb-12">
-              <div className="animate-fade-in">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  Parra blir OS-sport 2026!
+          <div className="mx-auto max-w-6xl">
+            <div className="grid gap-10 md:grid-cols-2 md:items-center mb-12">
+              <div>
+                <h2 className="text-3xl font-bold mb-4">
+                  {news?.title ?? "Parra blir OS-sport 2026!"}
                 </h2>
-                <p className="text-lg text-muted-foreground mb-6">
-                  Parallell puckelåkning (parra) gör debut i OS i Livigno 2026. 
-                  Detta är en historisk milstolpe för svensk puckelåkning!
+                <p className="text-muted-foreground mb-3">
+                  {news?.excerpt ??
+                    "Parallell puckelåkning (parra) gör debut i OS i Livigno 2026. Detta är en historisk milstolpe för svensk puckelåkning!"}
                 </p>
-                <p className="text-muted-foreground mb-6">
-                  I parra tävlar två åkare samtidigt sida vid sida på identiska banor. 
-                  Det är intensiv action där varje sekund och varje hopp räknas!
-                </p>
+
+                {news?.link ? (
+                  <Button asChild variant="action" className="mt-4">
+                    <a href={news.link} target="_blank" rel="noopener noreferrer">
+                      Läs mer
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
+                ) : null}
               </div>
-              <div className="animate-scale-in">
-                <img 
-                  src={"/images/parallel-race.jpg"} 
-                  alt="Parallel moguls racing" 
-                  className="w-full h-auto rounded-lg shadow-2xl"
-                />
+
+              <div className="relative overflow-hidden rounded-xl shadow-xl">
+                <div className="relative aspect-video">
+                  {news?.coverImage ? (
+                    <SanityImage image={news.coverImage} fill className="object-cover" />
+                  ) : (
+                    <img
+                      src="/images/parallel-race.jpg"
+                      alt="Parallel moguls racing"
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
               </div>
             </div>
             

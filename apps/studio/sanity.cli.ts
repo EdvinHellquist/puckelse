@@ -59,6 +59,7 @@ export default defineCliConfig({
   studioHost,
   deployment: {
     autoUpdates: false,
+    appId: "ehcdf3odl6lox7axb8esgxze"
   },
   vite: {
     plugins: [tsconfigPaths()],

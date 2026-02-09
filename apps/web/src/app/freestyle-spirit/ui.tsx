@@ -301,10 +301,10 @@ export function FreestyleSpiritClient({
             </div>
 
             {/* Legendariska åkare (carousel) */}
-            <div className="mt-12">
+{/*             <div className="mt-12">
               <h3 className="text-2xl font-bold mb-4 text-center">Legender inom svensk puckel</h3>
               <LegendCarousel legends={legends} />
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

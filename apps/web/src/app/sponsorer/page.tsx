@@ -88,7 +88,7 @@ export default async function SponsorerPage() {
         </section>
 
         {/* Packages */}
-        <section className="container mx-auto px-4 mb-16">
+{/*         <section className="container mx-auto px-4 mb-16">
           <h2 className="text-3xl font-bold text-center mb-12">{packagesTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {packages.map((pkg:any, idx:number) => (
@@ -123,10 +123,10 @@ export default async function SponsorerPage() {
               </Card>
             ))}
           </div>
-        </section>
+        </section> */}
 
         {/* CTA */}
-        <section className="container mx-auto px-4">
+        <section className="container mx-auto px-4 max-w-6xl">
           <Card className="bg-linear-to-r from-primary to-accent text-primary-foreground overflow-hidden">
             <CardContent className="p-12">
               <div className="max-w-3xl mx-auto text-center">

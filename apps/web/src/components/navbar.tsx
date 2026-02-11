@@ -53,7 +53,7 @@ export default function Navbar() {
             </a>
 
             <Button variant="action" size="sm" asChild>
-              <a href="#" target="_blank" rel="noopener noreferrer">
+              <a href="https://e-line.meri.se/sv034/Ski_Team_Moguls_Start/Profilklader" target="_blank" rel="noopener noreferrer">
                 Webshop
               </a>
             </Button>

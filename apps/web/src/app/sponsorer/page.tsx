@@ -23,7 +23,10 @@ function BenefitIcon({ name }: { name?: string }) {
 }
 
 export default async function SponsorerPage() {
-  const { data } = await sanityFetch({ query: querySponsorerPage });
+  const { data } = await sanityFetch({ 
+    query: querySponsorerPage,
+    tags: ["sponsorerPage"] 
+  });
 
   const title = data?.title ?? "Bli Sponsor";
   const subtitle = data?.subtitle ?? "Stöd svensk puckelåkning och få exponering i en av de mest spektakulära vintersporterna.";

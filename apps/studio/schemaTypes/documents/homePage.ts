@@ -60,5 +60,26 @@ export const homePage = defineType({
         }),
       ],
     }),
+    defineField({
+      name: "mainSponsors",
+      title: "Huvudsponsorer",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          fields: [
+            { name: "name", type: "string", title: "Namn", validation: (R) => R.required() },
+            { name: "url", type: "url", title: "Länk" },
+            {
+              name: "logo",
+              type: "image",
+              title: "Logotyp",
+              options: { hotspot: true },
+              validation: (R) => R.required(),
+            },
+          ],
+        },
+      ],
+    }),
   ],
 });

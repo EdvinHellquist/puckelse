@@ -120,8 +120,15 @@ export const queryHomePage = defineQuery(`
     heroTitle,
     heroSubtitle,
     heroLead,
-    heroImage{ ${imageFields} },
-    heroLogo{ ${imageFields} }
+    heroImage{${imageFields}},
+    heroLogo{${imageFields}},
+    mainSponsors[]{
+      name,
+      url,
+      logo{
+        ${imageFields}
+      }
+    }
   }
 `);
 

@@ -9,9 +9,18 @@ import { FreestyleSpiritClient } from "./ui";
 
 export default async function Page() {
   const [{ data: page }, { data: seasons }, { data: legends }] = await Promise.all([
-    sanityFetch({ query: queryFreestyleSpiritPage }),
-    sanityFetch({ query: querySeasons }),
-    sanityFetch({ query: queryLegendSkiers }),
+    sanityFetch({ 
+      query: queryFreestyleSpiritPage,
+      tags: ["freestyleSpiritPage"]
+    }),
+    sanityFetch({ 
+      query: querySeasons,
+      tags: ["seasons"]
+    }),
+    sanityFetch({ 
+      query: queryLegendSkiers,
+      tags: ["legendSkiers"]
+    }),
   ]);
 
   return (

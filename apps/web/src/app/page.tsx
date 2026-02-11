@@ -8,12 +8,19 @@ import { Card, CardContent } from "@workspace/ui/components/card";
 import { Button } from "@workspace/ui/components/button";
 
 import { SanityImage } from "@/components/sanity-image";
+import { SponsorMarquee } from "@/components/sponsor-marquee";
 
 
 export default async function Page() {
   const [{ data: home }, { data: news }] = await Promise.all([
-    sanityFetch({ query: queryHomePage }),
-    sanityFetch({ query: queryLatestNews }),
+    sanityFetch({ 
+      query: queryHomePage,
+      tags: ["homePage"]
+    }),
+    sanityFetch({ 
+      query: queryLatestNews,
+      tags: ["news"] 
+    }),
   ]);
 
   const heroTitle = home?.heroTitle ?? "Svensk Puckel";
@@ -23,7 +30,7 @@ export default async function Page() {
     "Upplev spänningen i moguls - där fart, hopp och precision möts på snön. Med parra som ny OS-sport 2026 är vi på väg mot nya höjder!";
   return (
     <div className="min-h-screen bg-background">
-        <section className="relative overflow-hidden pt-32 pb-20">
+      <section className="relative overflow-hidden pt-32 pb-20">
         <div className="absolute inset-0">
           {home?.heroImage ? (
             <div className="absolute inset-0">
@@ -68,7 +75,11 @@ export default async function Page() {
           </div>
         </div>
       </section>
-
+      {home?.mainSponsors?.length ? (
+        <div className="mt-16">
+          <SponsorMarquee sponsors={home.mainSponsors} />
+        </div>
+      ) : null}
       {/* Tre Huvudområden */}
       <section className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">

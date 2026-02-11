@@ -5,7 +5,10 @@ import {
 
 export const getNavigationData = async () => {
   const [settingsData] = await Promise.all([
-    sanityFetch({ query: queryGlobalSeoSettings }),
+    sanityFetch({ 
+      query: queryGlobalSeoSettings,
+      tags: ["settings"]
+    }),
   ]);
 
   return { settingsData: settingsData.data };

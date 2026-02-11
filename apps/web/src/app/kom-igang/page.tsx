@@ -14,7 +14,10 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 }
 
 export default async function KomIgangPage() {
-  const { data } = await sanityFetch({ query: queryKomIgangPage })
+  const { data } = await sanityFetch({ 
+    query: queryKomIgangPage,
+    tags: ["komIgang"]
+  })
 
   const title = data?.title ?? "Kom igång med Puckel!"
   const subtitle =

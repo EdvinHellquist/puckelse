@@ -21,7 +21,7 @@ type SeasonResult = {
   discipline: string;
   skier: string;
   place: number;
-  level: "WC" | "EC" | "SC" | "YMG" | "VM" | "OS" | "OTHER";
+  level: "WC" | "EC" | "SC" | "YMG" | "VM" | "OS" | "SM" | "OTHER";
 };
 
 type SeasonCard = {
@@ -45,6 +45,7 @@ type Season = {
   osResults?: SeasonResult[];
   vmResults?: SeasonResult[];
   seasonCards?: SeasonCard[];
+  smResults?: SeasonResult[];
   recapItems?: {
     category: string;
     title: string;
@@ -91,6 +92,7 @@ export function FreestyleSpiritClient({
     const allResults: SeasonResult[] = seasons.flatMap((s) => [
       ...(s.osResults ?? []),
       ...(s.vmResults ?? []),
+      ...(s.smResults ?? []),
       ...(s.worldCupResults ?? []),
       ...(s.europaCupResults ?? []),
       ...(s.svenskaCupenResults ?? []),
@@ -195,6 +197,15 @@ export function FreestyleSpiritClient({
                 onToggle={() => toggleSection("vm")}
                 results={season?.vmResults ?? []}
               />) : null}
+
+              <ResultCollapsible
+                title="Svenska Mästerskapen"
+                tag="SM"
+                border="border-l-primary"
+                open={openSection === "sm"}
+                onToggle={() => toggleSection("sm")}
+                results={season?.smResults ?? []}
+              />
 
               <ResultCollapsible
                 title="Världscup"

@@ -24,38 +24,44 @@ export const season = defineType({
 
     defineField({
       name: "worldCupResults",
-      title: "World Cup resultat",
+      title: "World Cup-resultat",
       type: "array",
       of: [defineArrayMember({ type: "seasonResult" })],
     }),
     defineField({
       name: "europaCupResults",
-      title: "Europa Cup resultat",
+      title: "Europa Cup-resultat",
       type: "array",
       of: [defineArrayMember({ type: "seasonResult" })],
     }),
     defineField({
       name: "svenskaCupenResults",
-      title: "Svenska Cupen resultat",
+      title: "Svenska Cupen-resultat",
       type: "array",
       of: [defineArrayMember({ type: "seasonResult" })],
     }),
     defineField({
       name: "ymgResults",
-      title: "YMG resultat",
+      title: "YMG-resultat",
       type: "array",
       of: [defineArrayMember({ type: "seasonResult" })],
     }),
 
     defineField({
       name: "osResults",
-      title: "OS resultat",
+      title: "OS-resultat",
       type: "array",
       of: [defineArrayMember({ type: "seasonResult" })],
     }),
     defineField({
       name: "vmResults",
-      title: "VM resultat",
+      title: "VM-resultat",
+      type: "array",
+      of: [defineArrayMember({ type: "seasonResult" })],
+    }),
+    defineField({
+      name: "smResults",
+      title: "SM-resultat",
       type: "array",
       of: [defineArrayMember({ type: "seasonResult" })],
     }),

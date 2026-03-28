@@ -21,7 +21,7 @@ export const legendSkier = defineType({
     // Stats (du kan lägga till fler senare)
     defineField({ name: "osMedals", type: "number", title: "OS-medaljer", initialValue: 0 }),
     defineField({ name: "vmMedals", type: "number", title: "VM-medaljer", initialValue: 0 }),
-    defineField({ name: "wcWins", type: "number", title: "Världscup-segrar", initialValue: 0 }),
+    defineField({ name: "wcWins", type: "number", title: "Världscup-pallplatser", initialValue: 0 }),
     defineField({ name: "jvmMedals", type: "number", title: "Junior-VM-medaljer", initialValue: 0 }),
     defineField({ name: "ecWins", type: "number", title: "Europacup-segrar", initialValue: 0 }),
     defineField({ name: "smMedals", type: "number", title: "SM-medaljer", initialValue: 0 }),

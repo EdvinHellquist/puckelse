@@ -7,12 +7,12 @@ catalog:
   '@types/node': ^24.10.9
   '@types/react': ^19.2.8
   '@types/react-dom': ^19.2.3
-  lucide-react: 'catalog:'
-  next-themes: 'catalog:'
+  lucide-react: ^0.562.0
+  next-themes: ^0.4.6
   react: ^19.2.3
   react-dom: ^19.2.3
   typescript: 5.9.2
-  zod: 'catalog:'
+  zod: ^4.3.5
 
 onlyBuiltDependencies:
   - '@tailwindcss/oxide'

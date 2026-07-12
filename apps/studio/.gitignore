@@ -28,6 +28,10 @@
 # Dotenv and similar local-only files
 *.local
 
+# FIS scraper artefacts
+scripts/.fis-cache/
+scripts/fis-results.json
+
 
 # Sanity Functions
 functions/**/.env*

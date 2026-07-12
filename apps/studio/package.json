@@ -15,7 +15,10 @@
     "deploy-graphql": "sanity graphql deploy",
     "extract": "sanity schema extract --enforce-required-fields",
     "check-types": "tsc --noEmit",
-    "type": "sanity schema extract --enforce-required-fields && sanity typegen generate"
+    "type": "sanity schema extract --enforce-required-fields && sanity typegen generate",
+    "fis:fetch": "tsx scripts/fetchFisResults.ts",
+    "fis:seed:dry": "cross-env DRY_RUN=1 tsx scripts/seedFisResults.ts",
+    "fis:seed": "tsx scripts/seedFisResults.ts"
   },
   "keywords": [
     "sanity"
@@ -44,8 +47,12 @@
   },
   "devDependencies": {
     "@sanity/blueprints": "0.10.0",
+    "@types/node": "^24.10.9",
     "@types/react": "catalog:",
     "@types/styled-components": "^5.1.36",
+    "cheerio": "^1.0.0",
+    "cross-env": "^7.0.3",
+    "tsx": "^4.19.2",
     "typescript": "catalog:",
     "vite": "^7.3.1",
     "vite-plugin-tsconfig-paths": "^1.4.1"

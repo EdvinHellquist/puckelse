@@ -29,16 +29,18 @@ export async function generateStaticParams() {
 export const dynamicParams = true;
 
 type PageProps = {
-  params: { slug?: string[] };
+  params: Promise<{ slug?: string[] }>;
 };
 
 export async function generateMetadata({ params }: PageProps) {
-  const slug = (params.slug ?? []).join("/");
+  const { slug: slugSegments } = await params;
+  const slug = (slugSegments ?? []).join("/");
   return getSEOMetadata({ slug });
 }
 
 export default async function SlugPage({ params }: PageProps) {
-  const slug = (params.slug ?? []).join("/");
+  const { slug: slugSegments } = await params;
+  const slug = (slugSegments ?? []).join("/");
 
   if (!slug) return notFound();
 

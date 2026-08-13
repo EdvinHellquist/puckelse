@@ -9,34 +9,36 @@
 
 
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(220 15% 10%);
+  --background: hsl(34 32% 91%);
+  --foreground: hsl(28 30% 10%);
 
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(220 15% 10%);
+  --card: hsl(38 45% 97%);
+  --card-foreground: hsl(28 30% 10%);
 
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(220 15% 10%);
+  --popover: hsl(38 45% 97%);
+  --popover-foreground: hsl(28 30% 10%);
 
-  --primary: hsl(210 100% 45%);
+  --primary: hsl(210 100% 42%);
   --primary-foreground: hsl(0 0% 100%);
   --primary-glow: hsl(210 100% 55%);
 
-  --secondary: hsl(15 90% 55%);
+  --secondary: hsl(15 90% 50%);
   --secondary-foreground: hsl(0 0% 100%);
 
-  --muted: hsl(210 40% 96%);
-  --muted-foreground: hsl(220 15% 45%);
+  --muted: hsl(32 22% 84%);
+  --muted-foreground: hsl(28 22% 28%);
 
-  --accent: hsl(15 90% 55%);
+  --accent: hsl(15 90% 50%);
   --accent-foreground: hsl(0 0% 100%);
 
-  --destructive: hsl(0 84.2% 60.2%);
+  --destructive: hsl(0 74% 48%);
   --destructive-foreground: hsl(0 0% 100%);
 
-  --border: hsl(220 15% 88%);
-  --input: hsl(220 15% 88%);
-  --ring: hsl(210 100% 45%);
+  --border: hsl(32 20% 74%);
+  --input: hsl(32 20% 74%);
+  --ring: hsl(210 100% 42%);
+
+  --pattern-color: hsl(28 40% 15% / 0.08);
 
   --radius: 0.75rem;
 
@@ -72,34 +74,36 @@
 }
 
 .dark {
-  --background: hsl(220 20% 8%);
-  --foreground: hsl(0 0% 98%);
+  --background: hsl(220 30% 6%);
+  --foreground: hsl(210 20% 97%);
 
-  --card: hsl(220 20% 12%);
-  --card-foreground: hsl(0 0% 98%);
+  --card: hsl(220 25% 10%);
+  --card-foreground: hsl(210 20% 97%);
 
-  --popover: hsl(220 20% 12%);
-  --popover-foreground: hsl(0 0% 98%);
+  --popover: hsl(220 25% 10%);
+  --popover-foreground: hsl(210 20% 97%);
 
-  --primary: hsl(210 100% 55%);
-  --primary-foreground: hsl(0 0% 100%);
-  --primary-glow: hsl(210 100% 65%);
+  --primary: hsl(210 100% 60%);
+  --primary-foreground: hsl(220 30% 6%);
+  --primary-glow: hsl(210 100% 70%);
 
-  --secondary: hsl(15 90% 60%);
-  --secondary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(15 95% 62%);
+  --secondary-foreground: hsl(220 30% 6%);
 
-  --muted: hsl(220 20% 18%);
-  --muted-foreground: hsl(220 15% 65%);
+  --muted: hsl(220 22% 14%);
+  --muted-foreground: hsl(220 12% 72%);
 
-  --accent: hsl(15 90% 60%);
-  --accent-foreground: hsl(0 0% 100%);
+  --accent: hsl(15 95% 62%);
+  --accent-foreground: hsl(220 30% 6%);
 
-  --destructive: hsl(0 62.8% 50%);
+  --destructive: hsl(0 72% 55%);
   --destructive-foreground: hsl(0 0% 100%);
 
   --border: hsl(220 20% 20%);
   --input: hsl(220 20% 20%);
-  --ring: hsl(210 100% 55%);
+  --ring: hsl(210 100% 60%);
+
+  --pattern-color: hsl(0 0% 100% / 0.04);
 
   --gradient-hero: linear-gradient(
     135deg,
@@ -177,6 +181,17 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -205,4 +220,113 @@ img {
   animation-duration: var(--marquee-duration);
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+}
+
+/* Decorative graphical utilities */
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--pattern-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--pattern-color) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.bg-grid-fade {
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    black 40%,
+    transparent 75%
+  );
+}
+
+.bg-dot {
+  background-image: radial-gradient(
+    var(--pattern-color) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb-blue {
+  background: radial-gradient(
+    circle at center,
+    hsl(210 100% 55% / 0.9),
+    transparent 65%
+  );
+}
+
+.orb-orange {
+  background: radial-gradient(
+    circle at center,
+    hsl(15 95% 60% / 0.85),
+    transparent 65%
+  );
+}
+
+.text-gradient-brand {
+  background: linear-gradient(
+    120deg,
+    hsl(210 100% 45%) 0%,
+    hsl(210 100% 38%) 40%,
+    hsl(15 92% 50%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.font-display {
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.015em;
+}
+
+.accent-bar {
+  display: inline-block;
+  width: 2rem;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    hsl(210 100% 60%),
+    hsl(15 95% 62%)
+  );
+  border-radius: 9999px;
+  vertical-align: middle;
+}
+
+/* Softly floating shape for hero, kontakt, etc. */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -18px, 0);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow {
+    animation: none;
+  }
 }

@@ -50,8 +50,10 @@ export function SponsorMarquee({
   const durationSeconds =
     contentWidth > 0 ? contentWidth / speedPxPerSecond : 20;
 
+  const measured = contentWidth > 0;
+
   return (
-    <div className="relative overflow-hidden bg-background/80 backdrop-blur">
+    <div className="relative overflow-hidden">
       <div className="py-6">
         <div
           ref={trackRef}
@@ -60,6 +62,8 @@ export function SponsorMarquee({
             {
               "--marquee-distance": `${contentWidth}px`,
               "--marquee-duration": `${durationSeconds}s`,
+              animationPlayState: measured ? "running" : "paused",
+              visibility: measured ? "visible" : "hidden",
             } as React.CSSProperties
           }
         >

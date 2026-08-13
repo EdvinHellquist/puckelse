@@ -24,7 +24,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  
+  async redirects() {
+    return [
+      { source: "/kom-igang", destination: "/#kom-igang", permanent: true },
+      { source: "/sponsorer", destination: "/#sponsorer", permanent: true },
+      {
+        source: "/freestyle-spirit",
+        destination: "/#framgangar",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

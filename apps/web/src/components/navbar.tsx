@@ -1,105 +1,159 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useState } from "react"
-import { Menu, X, ExternalLink } from "lucide-react"
-import { Button } from "@workspace/ui/components/button"
+import { useEffect, useState } from "react"
+import { ExternalLink, Menu } from "lucide-react"
 
-const navLinks = [
-  { href: "/", label: "Hem" },
-  { href: "/kom-igang", label: "Kom igång" },
-  { href: "/sponsorer", label: "Sponsorer" },
-  { href: "/freestyle-spirit", label: "Freestyle Spirit" },
+import { Button } from "@workspace/ui/components/button"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@workspace/ui/components/sheet"
+import { cn } from "@workspace/ui/lib/utils"
+
+const sections = [
+  { id: "kom-igang", label: "Kom igång" },
+  { id: "framgangar", label: "Framgångar" },
+  { id: "nyheter", label: "Nyheter" },
+  { id: "sponsorer", label: "Sponsorer" },
+  { id: "shop", label: "Shop" },
+  { id: "kontakt", label: "Kontakt" },
 ]
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const pathname = usePathname()
+const SKIDFORBUND_URL = "https://www.skidor.com/idrotter/puckel"
 
-  const isActive = (href: string) => pathname === href
+export default function Navbar() {
+  const [active, setActive] = useState<string>("hero")
+  const [scrolled, setScrolled] = useState(false)
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  useEffect(() => {
+    const ids = ["hero", ...sections.map((s) => s.id)]
+    const els = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el))
+    if (!els.length) return
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+        if (visible[0]?.target?.id) setActive(visible[0].target.id)
+      },
+      {
+        rootMargin: "-45% 0px -50% 0px",
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+      }
+    )
+    els.forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [])
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
-              PUCKEL
-            </span>
-          </Link>
+    <header
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 transition-all duration-200",
+        scrolled
+          ? "border-b border-border/60 bg-background/80 backdrop-blur-lg"
+          : "bg-transparent"
+      )}
+    >
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <a
+          href="#hero"
+          className="bg-linear-to-r from-primary to-accent bg-clip-text text-2xl font-bold tracking-tight text-transparent"
+        >
+          PUCKEL
+        </a>
 
-          <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(link.href) ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-
+        <nav className="hidden items-center gap-1 md:flex">
+          {sections.map((s) => (
             <a
-              href="https://www.skidor.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+              key={s.id}
+              href={`#${s.id}`}
+              className={cn(
+                "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                active === s.id
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
             >
-              Svenska Skidförbundet
-              <ExternalLink className="w-3 h-3" />
+              {s.label}
             </a>
-
-            <Button variant="action" size="sm" asChild>
-              <a href="https://e-line.meri.se/sv034/Ski_Team_Moguls_Start/Profilklader" target="_blank" rel="noopener noreferrer">
-                Webshop
-              </a>
-            </Button>
-          </div>
-
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2"
-            aria-label="Toggle menu"
+          ))}
+          <span className="mx-2 h-5 w-px bg-border" />
+          <a
+            href={SKIDFORBUND_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
+            Skidförbundet
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        </nav>
 
-        {isOpen && (
-          <div className="md:hidden py-4 space-y-3 animate-fade-in">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                className={`block py-2 text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(link.href) ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-
-            <a
-              href="https://www.skidor.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-            >
-              Svenska Skidförbundet
-            </a>
-
-            <Button variant="action" size="sm" className="w-full" asChild>
-              <a href="#" target="_blank" rel="noopener noreferrer">
-                Webshop
-              </a>
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button size="icon" variant="ghost" className="md:hidden">
+              <Menu className="size-5" />
+              <span className="sr-only">Öppna meny</span>
             </Button>
-          </div>
-        )}
+          </SheetTrigger>
+          <SheetContent
+            side="right"
+            className="flex w-80 flex-col gap-0 p-0"
+          >
+            <SheetHeader className="border-b px-6 pt-6 pb-4">
+              <SheetTitle className="text-left">
+                <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-xl font-bold text-transparent">
+                  PUCKEL
+                </span>
+              </SheetTitle>
+            </SheetHeader>
+            <nav className="flex flex-col gap-1 p-4">
+              {sections.map((s) => (
+                <SheetClose asChild key={s.id}>
+                  <a
+                    href={`#${s.id}`}
+                    className={cn(
+                      "rounded-lg px-3 py-3 text-base font-medium transition-colors",
+                      active === s.id
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground hover:bg-muted"
+                    )}
+                  >
+                    {s.label}
+                  </a>
+                </SheetClose>
+              ))}
+              <div className="my-3 h-px bg-border" />
+              <SheetClose asChild>
+                <a
+                  href={SKIDFORBUND_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium text-muted-foreground transition-colors hover:bg-muted"
+                >
+                  Skidförbundet
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </SheetClose>
+            </nav>
+          </SheetContent>
+        </Sheet>
       </div>
-    </nav>
+    </header>
   )
 }

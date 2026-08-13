@@ -56,6 +56,19 @@ export function formatDateSv(value: string) {
   return `${pad2(day)} ${monthNames[month - 1]} ${year}`;
 }
 
+const svMonthIndex: Record<string, number> = Object.fromEntries(
+  monthNames.map((m, i) => [m, i + 1]),
+);
+
+export function dateSvToRawDate(dateSv: string): string {
+  const m = /^(\d{1,2})\s+([a-zåäö]+)\s+(\d{4})$/i.exec(dateSv?.trim() ?? "");
+  if (!m) return "";
+  const day = m[1].padStart(2, "0");
+  const monthNum = svMonthIndex[m[2].toLowerCase()];
+  if (!monthNum) return "";
+  return `${m[3]}${pad2(monthNum)}${day}`;
+}
+
 export function getSeasonStartYear(value: string) {
   const { year, month } = parseYYYYMMDD(value);
   return month >= 8 ? year : year - 1;

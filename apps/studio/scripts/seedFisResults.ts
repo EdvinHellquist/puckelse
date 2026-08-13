@@ -91,8 +91,11 @@ async function main() {
   const bucketFields: (keyof SeasonBuckets)[] = [
     "worldCupResults",
     "europaCupResults",
+    "svenskaCupenResults",
+    "ymgResults",
     "vmResults",
     "osResults",
+    "smResults",
   ];
 
   let totalAdded = 0;
@@ -101,7 +104,7 @@ async function main() {
     const existing = await client.fetch<SanitySeason | null>(
       `*[_type == "season" && label == $label][0]{
         _id, label, yearStart,
-        worldCupResults, europaCupResults, vmResults, osResults
+        worldCupResults, europaCupResults, vmResults, osResults, smResults
       }`,
       { label: season.label },
     );

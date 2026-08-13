@@ -18,7 +18,9 @@
     "type": "sanity schema extract --enforce-required-fields && sanity typegen generate",
     "fis:fetch": "tsx scripts/fetchFisResults.ts",
     "fis:seed:dry": "cross-env DRY_RUN=1 tsx scripts/seedFisResults.ts",
-    "fis:seed": "tsx scripts/seedFisResults.ts"
+    "fis:seed": "tsx scripts/seedFisResults.ts",
+    "sanity:cleanup:dry": "cross-env DRY_RUN=1 tsx scripts/cleanupSanityRows.ts",
+    "sanity:cleanup": "tsx scripts/cleanupSanityRows.ts"
   },
   "keywords": [
     "sanity"

@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { Discipline, Level, RawRow } from "./seasonHelpers.js";
+import { normalizeCompetition, normalizeSkier } from "./aliases.js";
 
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const CACHE_DIR = join(scriptsDir, ".fis-cache");
@@ -16,17 +17,26 @@ const REQUEST_DELAY_MS = 250;
 const NATION = "SWE";
 const PODIUM_MAX_PLACE = 3;
 
-type FisCategory = "WC" | "EC" | "WSC" | "OWG";
+type FisCategory = "WC" | "EC" | "WSC" | "OWG" | "NC" | "FIS";
 const FIS_TO_LEVEL: Record<FisCategory, Level> = {
   WC: "WC",
   EC: "EC",
   WSC: "VM",
   OWG: "OS",
+  NC: "SM",
+  // Base-tier "FIS" races hosted in Sweden are the domestic Svenska Cupen circuit.
+  FIS: "SC",
 };
 
-const CATEGORIES: FisCategory[] = ["WC", "EC", "WSC", "OWG"];
+// NC and FIS are filtered to SWE-hosted events only (Swedish Nationals / Svenska Cupen).
+const NATION_HOSTED_CATEGORIES: Partial<Record<FisCategory, string>> = {
+  NC: "SWE",
+  FIS: "SWE",
+};
+
+const CATEGORIES: FisCategory[] = ["WC", "EC", "WSC", "OWG", "NC", "FIS"];
 const DISCIPLINES: Discipline[] = ["MO", "DM"];
-const GENDERS = ["M"] as const;
+const GENDERS = ["M", "W"] as const;
 
 function parseSeasonRange(): { from: number; to: number } {
   const from = Number(process.env.SEASON_FROM ?? "1980");
@@ -105,14 +115,23 @@ function raceUrl(raceId: number) {
   return `${FIS_ORIGIN}/DB/general/results.html?sectorcode=FS&raceid=${raceId}`;
 }
 
-function extractEventIds($: CheerioAPI): number[] {
-  const ids = new Set<number>();
+function extractEvents($: CheerioAPI): Array<{ eventId: number; nation: string | null }> {
+  const events = new Map<number, string | null>();
   $("a[href*='event-details.html']").each((_, el) => {
-    const href = $(el).attr("href") ?? "";
+    const $el = $(el);
+    const href = $el.attr("href") ?? "";
     const match = href.match(/eventid=(\d+)/);
-    if (match) ids.add(Number(match[1]));
+    if (!match) return;
+    const id = Number(match[1]);
+    const row = $el.closest(".container.g-row, .g-row");
+    const flagClass = row.find(".flag").first().attr("class") ?? "";
+    const flagMatch = flagClass.match(/flag-([A-Z]{3})/);
+    const nation = flagMatch ? flagMatch[1] : null;
+    if (!events.has(id) || (nation && !events.get(id))) {
+      events.set(id, nation);
+    }
   });
-  return [...ids];
+  return [...events.entries()].map(([eventId, nation]) => ({ eventId, nation }));
 }
 
 type EventRace = {
@@ -264,12 +283,16 @@ async function main() {
             continue;
           }
           const $cal = load(calHtml);
-          const eventIds = extractEventIds($cal);
-          if (eventIds.length === 0) continue;
+          const allEvents = extractEvents($cal);
+          const requiredNation = NATION_HOSTED_CATEGORIES[category];
+          const events = requiredNation
+            ? allEvents.filter((e) => e.nation === requiredNation)
+            : allEvents;
+          if (events.length === 0) continue;
 
-          console.log(`${category} ${discipline} ${gender} ${season}: ${eventIds.length} event(s)`);
+          console.log(`${category} ${discipline} ${gender} ${season}: ${events.length} event(s)${requiredNation ? ` (filtered to ${requiredNation})` : ""}`);
 
-          for (const eventId of eventIds) {
+          for (const { eventId } of events) {
             const evtUrl = eventDetailsUrl(eventId, season);
             let evtHtml: string;
             try {
@@ -310,9 +333,9 @@ async function main() {
                 .filter((f) => f.nation === NATION && f.place <= PODIUM_MAX_PLACE)
                 .map((f) => ({
                   rawDate: isoDateToRawDate(parsed.meta.isoDate),
-                  competition: competitionWithCountry(parsed.meta.competition),
+                  competition: normalizeCompetition(competitionWithCountry(parsed.meta.competition)),
                   place: f.place,
-                  skier: normalizeSkierName(f.surname, f.givenName),
+                  skier: normalizeSkier(normalizeSkierName(f.surname, f.givenName)),
                   level,
                   discipline,
                 }) satisfies RawRow);

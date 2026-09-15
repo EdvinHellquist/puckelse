@@ -13,6 +13,14 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui/components/dialog"
+import {
   Table,
   TableBody,
   TableCell,
@@ -42,6 +50,88 @@ type Season = {
   osResults?: SeasonResult[]
   vmResults?: SeasonResult[]
   smResults?: SeasonResult[]
+}
+
+type TaggedResult = SeasonResult & { season: string }
+
+type Medalist = {
+  skier: string
+  gold: number
+  silver: number
+  bronze: number
+  total: number
+  results: TaggedResult[]
+}
+
+const isMedal = (r: SeasonResult) => r.place >= 1 && r.place <= 3
+
+// FIS-datan listar kvalomgångar som egna resultat. Vid OS och VM körs bara en
+// tävling per gren och mästerskap, så två resultat på samma åkare betyder att
+// kvalet följt med — behåll den bästa placeringen och släng resten.
+function dropQualifyingRounds(results: SeasonResult[]) {
+  const best = new Map<string, SeasonResult>()
+
+  for (const r of results) {
+    const key = `${r.competition}|${r.discipline}|${r.skier}`
+    const prev = best.get(key)
+    if (!prev || r.place < prev.place) best.set(key, r)
+  }
+
+  return [...best.values()]
+}
+
+function withSeason(results: SeasonResult[], season: string): TaggedResult[] {
+  return results.map((r) => ({ ...r, season }))
+}
+
+function groupBySkier(results: TaggedResult[]): Medalist[] {
+  const map = new Map<string, Medalist>()
+
+  for (const r of results) {
+    let entry = map.get(r.skier)
+    if (!entry) {
+      entry = {
+        skier: r.skier,
+        gold: 0,
+        silver: 0,
+        bronze: 0,
+        total: 0,
+        results: [],
+      }
+      map.set(r.skier, entry)
+    }
+
+    if (r.place === 1) entry.gold++
+    else if (r.place === 2) entry.silver++
+    else if (r.place === 3) entry.bronze++
+
+    entry.total++
+    entry.results.push(r)
+  }
+
+  for (const entry of map.values()) {
+    entry.results.sort(
+      (a, b) => b.season.localeCompare(a.season) || a.place - b.place
+    )
+  }
+
+  return [...map.values()].sort(
+    (a, b) =>
+      b.gold - a.gold ||
+      b.silver - a.silver ||
+      b.bronze - a.bronze ||
+      a.skier.localeCompare(b.skier, "sv")
+  )
+}
+
+function medalStyle(place: number) {
+  if (place === 1) {
+    return { label: "Guld", className: "bg-amber-400 text-amber-950" }
+  }
+  if (place === 2) {
+    return { label: "Silver", className: "bg-zinc-300 text-zinc-800" }
+  }
+  return { label: "Brons", className: "bg-amber-700 text-amber-50" }
 }
 
 export function FramgangarSection({ seasons }: { seasons: Season[] }) {
@@ -76,21 +166,55 @@ export function FramgangarSection({ seasons }: { seasons: Season[] }) {
     doc.style.scrollBehavior = prev
   }, [openKey])
 
-  const hallStats = useMemo(() => {
-    const all: SeasonResult[] = seasons.flatMap((s) => [
-      ...(s.osResults ?? []),
-      ...(s.vmResults ?? []),
-      ...(s.smResults ?? []),
-      ...(s.worldCupResults ?? []),
-      ...(s.europaCupResults ?? []),
-      ...(s.svenskaCupenResults ?? []),
-      ...(s.ymgResults ?? []),
-    ])
-    const isMedal = (r: SeasonResult) => r.place >= 1 && r.place <= 3
+  const osResults = useMemo(
+    () => dropQualifyingRounds(season?.osResults ?? []),
+    [season]
+  )
+  const vmResults = useMemo(
+    () => dropQualifyingRounds(season?.vmResults ?? []),
+    [season]
+  )
+
+  const hall = useMemo(() => {
+    const os: TaggedResult[] = []
+    const vm: TaggedResult[] = []
+    const wc: TaggedResult[] = []
+
+    for (const s of seasons) {
+      const all: SeasonResult[] = [
+        ...(s.osResults ?? []),
+        ...(s.vmResults ?? []),
+        ...(s.smResults ?? []),
+        ...(s.worldCupResults ?? []),
+        ...(s.europaCupResults ?? []),
+        ...(s.svenskaCupenResults ?? []),
+        ...(s.ymgResults ?? []),
+      ]
+
+      os.push(
+        ...withSeason(
+          dropQualifyingRounds(all.filter((r) => r.level === "OS")).filter(isMedal),
+          s.label
+        )
+      )
+      vm.push(
+        ...withSeason(
+          dropQualifyingRounds(all.filter((r) => r.level === "VM")).filter(isMedal),
+          s.label
+        )
+      )
+      wc.push(
+        ...withSeason(
+          all.filter((r) => r.level === "WC" && r.place === 1),
+          s.label
+        )
+      )
+    }
+
     return {
-      osMedals: all.filter((r) => r.level === "OS" && isMedal(r)).length,
-      vmMedals: all.filter((r) => r.level === "VM" && isMedal(r)).length,
-      wcWins: all.filter((r) => r.level === "WC" && r.place === 1).length,
+      os: { total: os.length, medalists: groupBySkier(os) },
+      vm: { total: vm.length, medalists: groupBySkier(vm) },
+      wc: { total: wc.length, medalists: groupBySkier(wc) },
     }
   }, [seasons])
 
@@ -158,24 +282,24 @@ export function FramgangarSection({ seasons }: { seasons: Season[] }) {
               </div>
 
               <div className="space-y-3">
-                {season?.osResults?.length ? (
+                {osResults.length ? (
                   <ResultRow
                     title="OS"
                     tag="OS"
                     accent="border-l-primary"
                     open={openKey === "os"}
                     onToggle={(el) => toggle("os", el)}
-                    results={season.osResults}
+                    results={osResults}
                   />
                 ) : null}
-                {season?.vmResults?.length ? (
+                {vmResults.length ? (
                   <ResultRow
                     title="VM"
                     tag="VM"
                     accent="border-l-primary"
                     open={openKey === "vm"}
                     onToggle={(el) => toggle("vm", el)}
-                    results={season.vmResults}
+                    results={vmResults}
                   />
                 ) : null}
                 <ResultRow
@@ -233,14 +357,29 @@ export function FramgangarSection({ seasons }: { seasons: Season[] }) {
               <h3 className="mb-3 text-3xl font-bold">Hall of Fame</h3>
               <p className="mx-auto max-w-xl text-muted-foreground">
                 Totalt antal medaljer och segrar från Sveriges bästa
-                puckelåkare.
+                puckelåkare. Klicka för att se vilka som står bakom siffrorna.
               </p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
-              <StatCard title="OS-medaljer" value={hallStats.osMedals} />
-              <StatCard title="VM-medaljer" value={hallStats.vmMedals} />
-              <StatCard title="Världscup-segrar" value={hallStats.wcWins} />
+              <StatCard
+                title="OS-medaljer"
+                value={hall.os.total}
+                medalists={hall.os.medalists}
+                mode="medals"
+              />
+              <StatCard
+                title="VM-medaljer"
+                value={hall.vm.total}
+                medalists={hall.vm.medalists}
+                mode="medals"
+              />
+              <StatCard
+                title="Världscup-segrar"
+                value={hall.wc.total}
+                medalists={hall.wc.medalists}
+                mode="wins"
+              />
             </div>
           </div>
         </div>
@@ -369,9 +508,113 @@ function ResultRow({
   )
 }
 
-function StatCard({ title, value }: { title: string; value: number }) {
+function StatCard({
+  title,
+  value,
+  medalists,
+  mode,
+}: {
+  title: string
+  value: number
+  medalists: Medalist[]
+  mode: "medals" | "wins"
+}) {
+  const card = <StatCardFace title={title} value={value} />
+
+  if (!medalists.length) return card
+
   return (
-    <Card className="group relative overflow-hidden border-border/80 bg-card shadow-sm transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl">
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="block h-full w-full cursor-pointer rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          aria-label={`${title}: visa vilka åkare som står bakom siffran`}
+        >
+          {card}
+        </button>
+      </DialogTrigger>
+
+      <DialogContent className="max-h-[85vh] gap-0 overflow-y-auto sm:max-w-2xl">
+        <DialogHeader className="text-left">
+          <DialogTitle className="text-2xl">{title}</DialogTitle>
+          <DialogDescription>
+            {value} {mode === "medals" ? "medaljer" : "segrar"} fördelat på{" "}
+            {medalists.length} åkare.
+          </DialogDescription>
+        </DialogHeader>
+
+        <ul className="mt-6 space-y-3">
+          {medalists.map((m) => (
+            <li
+              key={m.skier}
+              className="rounded-xl border border-border/70 bg-card p-4"
+            >
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <span className="font-display text-lg font-bold">
+                  {m.skier}
+                </span>
+                {mode === "medals" ? (
+                  <div className="flex items-center gap-1.5">
+                    {([1, 2, 3] as const).map((place) => {
+                      const count =
+                        place === 1 ? m.gold : place === 2 ? m.silver : m.bronze
+                      if (!count) return null
+                      return (
+                        <span
+                          key={place}
+                          title={medalStyle(place).label}
+                          className={cn(
+                            "flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-bold",
+                            medalStyle(place).className
+                          )}
+                        >
+                          {count}
+                        </span>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <Badge variant="secondary">
+                    {m.total} {m.total === 1 ? "seger" : "segrar"}
+                  </Badge>
+                )}
+              </div>
+
+              <ul className="space-y-1.5">
+                {m.results.map((r) => (
+                  <li
+                    key={`${r.season}-${r.competition}-${r.discipline}-${r.date}-${r.place}`}
+                    className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm"
+                  >
+                    {mode === "medals" ? (
+                      <span
+                        className={cn(
+                          "shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold",
+                          medalStyle(r.place).className
+                        )}
+                      >
+                        {medalStyle(r.place).label}
+                      </span>
+                    ) : null}
+                    <span className="font-medium">{r.competition}</span>
+                    <span className="text-muted-foreground">
+                      {r.discipline} · {r.date} · {r.season}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function StatCardFace({ title, value }: { title: string; value: number }) {
+  return (
+    <Card className="group relative h-full overflow-hidden border-border/80 bg-card shadow-sm transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl">
       <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/60 to-transparent" />
       <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-linear-to-br from-primary/40 to-accent/40 opacity-30 blur-2xl transition-opacity group-hover:opacity-60" />
       <CardContent className="relative pt-8 pb-6 text-center">

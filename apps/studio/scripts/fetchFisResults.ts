@@ -156,6 +156,16 @@ function extractRacesFromEvent($: CheerioAPI): EventRace[] {
 
     const rowText = $row.text().replace(/\s+/g, " ");
 
+    // FIS listar kvalomgången som ett eget race under samma event, med egna
+    // placeringar. Utan det här filtret räknas en topp-3 i kvalet som en
+    // pallplats — t.ex. blev Walter Wallbergs kval i Beijing 2022 en extra
+    // OS-medalj, och kvalsegrar i Engadin 2025 och Voss 2013 blev VM-medaljer.
+    // Kvalracet heter "Moguls Qualification" och har kategorikoden QUA;
+    // finalracet heter bara "Moguls" och bär WC/EC/WSC/OWG.
+    if (/\bMoguls Qualification\b/i.test(rowText) || /\bQUA\b/.test(rowText)) {
+      return;
+    }
+
     let discipline: Discipline | null = null;
     if (/\bDual Moguls\b/i.test(rowText)) discipline = "DM";
     else if (/\bMoguls\b/i.test(rowText)) discipline = "MO";

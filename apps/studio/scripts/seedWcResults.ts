@@ -53,7 +53,10 @@ const rawData: RawRow[] = [
   { rawDate: "19960306", competition: "Hundfjället, SWE", place: 2, skier: "Jesper Rönnbeck", level: "WC", discipline: "MO" },
   { rawDate: "19961206", competition: "Tignes, FRA", place: 1, skier: "Jesper Rönnbeck", level: "WC", discipline: "MO" },
   { rawDate: "19961216", competition: "La Plagne, FRA", place: 2, skier: "Jesper Rönnbeck", level: "WC", discipline: "MO" },
-  { rawDate: "19970107", competition: "Mont Treblant, CAN", place: 1, skier: "Jesper Rönnbeck", level: "WC", discipline: "MO" },
+  // Datum rättat från 19970107 och orten från "Mont Treblant": FIS har bara ett
+  // moguls-race i Mont Tremblant säsong 1997, den 9 jan (raceid 1950). Med fel
+  // datum dedupade raden inte mot FIS-raden, så segern räknades två gånger.
+  { rawDate: "19970109", competition: "Mont Tremblant, CAN", place: 1, skier: "Jesper Rönnbeck", level: "WC", discipline: "MO" },
   { rawDate: "19980309", competition: "Hundfjället, SWE", place: 2, skier: "Jesper Rönnbeck", level: "WC", discipline: "MO" },
   { rawDate: "20091211", competition: "Suomu, FIN", place: 1, skier: "Jesper Björnlund", level: "WC", discipline: "MO" },
   { rawDate: "20091212", competition: "Suomu, FIN", place: 1, skier: "Jesper Björnlund", level: "WC", discipline: "MO" },

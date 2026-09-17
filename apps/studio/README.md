@@ -33,4 +33,39 @@ Remove-Item Env:\SANITY_TOKEN
 
 Bash-varianten är samma sak med `SEASON_FROM=2026 SEASON_TO=2027 pnpm --filter studio fis:fetch` osv.
 
+### SANITY_TOKEN
+
+Skripten läser `apps/studio/.env` (inte roten — `pnpm --filter studio` kör med
+`apps/studio` som working directory, och det är där `dotenv` letar). Filen är
+gitignorerad via `*.env`.
+
+```
+SANITY_TOKEN=sk...
+```
+
+Alternativt som sessionsvariabel enligt exemplen ovan, om du hellre slipper ha
+tokenet på disk. Torrkörningar klarar sig med ett läsrättighetstoken; för att
+skriva krävs **Editor**, annars svarar Sanity `403 Insufficient permissions;
+permission "update" required` först när första patchen går iväg — läsningen
+lyckas alltid, eftersom datasetet är publikt.
+
+## Städa upp rader i Sanity
+
+`scripts/cleanupSanityRows.ts` normaliserar åkar- och tävlingsnamn via
+`aliases.ts`, lagar trasiga datum och tar bort dubbletter.
+
+```powershell
+pnpm --filter studio sanity:cleanup:dry   # visar vad som skulle ändras
+pnpm --filter studio sanity:cleanup       # skriver
+```
+
+Den lagar felstavade månader ("21 dev 2024") och väljer dag för datumintervall
+("25-26 jan 2025") utifrån syskonrader för samma tävling och gren. Två rader med
+olika giltiga datum slås aldrig ihop — en tävlingshelg med två event på
+varandra följande dagar är äkta resultat, inte en dubblett. Rader vars datum
+inte går att laga lämnas orörda och listas under "GÅR EJ ATT LAGA".
+
+Skriptet patchar en säsong i taget, så det är inte atomärt över säsonger: om en
+körning avbryts halvvägs är tidigare säsonger redan skrivna.
+
 FIS spellar utan diakriter (`Rönnbeck` → `Roennback`, `Idre` → `Idre Fjäll`, `Bakurani` → `Bakuriani`). Skiljer sig FIS-strängen från befintlig rad hamnar båda i Sanity — städa i Studio efter.

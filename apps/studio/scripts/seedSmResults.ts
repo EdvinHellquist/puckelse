@@ -1,3 +1,7 @@
+// Laddar apps/studio/.env, så att SANITY_TOKEN kan ligga i en fil i stället
+// för att sättas om i skalet vid varje körning.
+import "dotenv/config";
+
 import { createClient } from "@sanity/client";
 
 const client = createClient({

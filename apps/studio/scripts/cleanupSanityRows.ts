@@ -131,8 +131,14 @@ function analyzeRow(row: SeasonResult): Analyzed {
     discipline: row.discipline,
     place: row.place,
   });
+  // Ett datum som inte går att laga lämnas exakt som det var. Annars skulle ett
+  // saknat fält skrivas om till tom sträng, vilket är en ändring utan värde —
+  // och får skriptet att patcha säsonger där inget egentligen behöver göras.
+  const fixed: SeasonResult = { ...row, skier, competition, _key: key };
+  if (status !== "invalid") fixed.date = date;
+
   return {
-    row: { ...row, skier, competition, date, _key: key },
+    row: fixed,
     rawDate,
     status,
     span,
@@ -302,7 +308,14 @@ async function main() {
     console.log();
     console.log(`${title} (${rows.length}):`);
     for (const r of rows) {
-      const shown = r.before === r.row.date ? `"${r.before}"` : `"${r.before}" → "${r.row.date}"`;
+      const shown =
+        r.kind === "invalid"
+          ? r.before
+            ? `"${r.before}" (otolkbart)`
+            : "(datum saknas)"
+          : r.before === r.row.date
+            ? `"${r.before}"`
+            : `"${r.before}" → "${r.row.date}"`;
       console.log(`  ${shown.padEnd(30)} ${describe(r)}`);
     }
   }

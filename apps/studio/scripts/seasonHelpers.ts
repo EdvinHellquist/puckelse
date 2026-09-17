@@ -87,7 +87,11 @@ export function slugify(input: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export function rowKey(row: Pick<RawRow, "rawDate" | "competition" | "skier" | "discipline" | "place">) {
+// `discipline` vidgas till string: nyckeln interpolerar bara in värdet, och
+// rader som läses tillbaka från Sanity är typade som string, inte Discipline.
+export function rowKey(
+  row: Pick<RawRow, "rawDate" | "competition" | "skier" | "place"> & { discipline: string },
+) {
   return slugify(`${row.rawDate}-${row.competition}-${row.skier}-${row.discipline}-${row.place}`);
 }
 

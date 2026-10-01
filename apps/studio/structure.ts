@@ -1,5 +1,5 @@
 // apps/studio/structure.ts
-import { DollarSign, HandMetal, HomeIcon, ListStart, MapPin, Newspaper, Settings2 } from "lucide-react";
+import { DollarSign, HandMetal, HomeIcon, ListStart, MapPin, Newspaper, Settings2, ShoppingBag } from "lucide-react";
 import type { StructureBuilder, StructureResolverContext } from "sanity/structure";
 
 export const structure = (S: StructureBuilder, _context: StructureResolverContext) =>
@@ -39,6 +39,14 @@ export const structure = (S: StructureBuilder, _context: StructureResolverContex
           S.document()
             .schemaType("freestyleSpiritPage")
             .documentId("freestyleSpiritPage")),
+
+      S.listItem()
+        .title("Shop")
+        .icon(ShoppingBag)
+        .child(
+          S.document()
+            .schemaType("shopPage")
+            .documentId("shopPage")),
 
       S.divider(),      
       // Nyheter (lista)

@@ -13,6 +13,7 @@ import {
 } from "@workspace/ui/components/carousel"
 
 import { SanityImage } from "@/components/sanity-image"
+import type { SectionIntro } from "@/components/sections/spa/types"
 
 type NewsItem = {
   _id?: string
@@ -21,12 +22,6 @@ type NewsItem = {
   publishedAt?: string
   link?: string
   coverImage?: any
-}
-
-const FALLBACK: NewsItem = {
-  title: "Parra blir OS-sport 2026!",
-  excerpt:
-    "Parallell puckelåkning (parra) gör debut i OS i Livigno 2026. Detta är en historisk milstolpe för svensk puckelåkning!",
 }
 
 function formatDate(iso?: string) {
@@ -42,8 +37,13 @@ function formatDate(iso?: string) {
 // Nyheterna kommer sorterade nyast först. Karusellen startar på index 0 och
 // bläddrar aldrig av sig själv — den senaste nyheten står still tills någon
 // bläddrar.
-export function NyheterSection({ news }: { news: NewsItem[] }) {
-  const items = news.length ? news : [FALLBACK]
+export function NyheterSection({
+  header,
+  news: items,
+}: {
+  header: SectionIntro
+  news: NewsItem[]
+}) {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
 
@@ -71,13 +71,16 @@ export function NyheterSection({ news }: { news: NewsItem[] }) {
           <div className="mb-4 flex items-center justify-center gap-3">
             <span className="accent-bar" />
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-              Aktuellt
+              {header.eyebrow}
             </p>
             <span className="accent-bar" />
           </div>
           <h2 className="mb-5 text-4xl font-bold leading-tight md:text-5xl">
-            <span className="text-gradient-brand">Senaste nytt</span>
+            <span className="text-gradient-brand">{header.title}</span>
           </h2>
+          {header.intro ? (
+            <p className="text-lg text-muted-foreground">{header.intro}</p>
+          ) : null}
         </div>
 
         <div className="mx-auto max-w-6xl">
@@ -141,18 +144,12 @@ function NewsCard({ item }: { item: NewsItem }) {
   const date = formatDate(item.publishedAt)
 
   return (
-    <div className="grid h-full md:grid-cols-2">
-      <div className="relative aspect-video md:aspect-auto md:min-h-[360px]">
-        {item.coverImage ? (
+    <div className={`grid h-full ${item.coverImage ? "md:grid-cols-2" : ""}`}>
+      {item.coverImage ? (
+        <div className="relative aspect-video md:aspect-auto md:min-h-[360px]">
           <SanityImage image={item.coverImage} fill className="object-cover" />
-        ) : (
-          <img
-            src="/images/parallel-race.jpg"
-            alt="Parallel moguls racing"
-            className="h-full w-full object-cover"
-          />
-        )}
-      </div>
+        </div>
+      ) : null}
 
       <div className="flex flex-col justify-center p-8 md:p-12">
         <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">

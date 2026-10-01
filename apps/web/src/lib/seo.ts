@@ -1,15 +1,9 @@
+import { client } from "@workspace/sanity/client";
+import { querySettingsData } from "@workspace/sanity/query";
 import type { Metadata } from "next";
 
 import type { Maybe } from "@/types";
 import { capitalize, getBaseUrl } from "@/utils";
-
-// Site-wide configuration interface
-type SiteConfig = {
-  title: string;
-  description: string;
-  twitterHandle: string;
-  keywords: string[];
-};
 
 // Page-specific SEO data interface
 interface PageSeoData extends Metadata {
@@ -27,14 +21,6 @@ interface PageSeoData extends Metadata {
 type OgImageParams = {
   type?: string;
   id?: string;
-};
-
-// Default site configuration
-const siteConfig: SiteConfig = {
-  title: "Roboto Studio Demo",
-  description: "Roboto Studio Demo",
-  twitterHandle: "@studioroboto",
-  keywords: ["roboto", "studio", "demo", "sanity", "next", "react", "template"],
 };
 
 function generateOgImageUrl(params: OgImageParams = {}): string {
@@ -81,7 +67,12 @@ function extractTitle({
   return siteTitle;
 }
 
-export function getSEOMetadata(page: PageSeoData = {}): Metadata {
+// Sajtens namn och beskrivning redigeras i Sanity under Settings.
+export async function getSEOMetadata(page: PageSeoData = {}): Promise<Metadata> {
+  const settings = await client.fetch(querySettingsData);
+  const siteTitle: string = settings?.siteTitle ?? "";
+  const siteDescription: string = settings?.siteDescription ?? "";
+
   const {
     title: pageTitle,
     description: pageDescription,
@@ -101,10 +92,9 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
   const defaultTitle = extractTitle({
     pageTitle,
     slug,
-    siteTitle: siteConfig.title,
+    siteTitle,
   });
-  const defaultDescription = pageDescription || siteConfig.description;
-  const allKeywords = [...siteConfig.keywords, ...pageKeywords];
+  const defaultDescription = pageDescription || siteDescription;
 
   const ogImage = generateOgImageUrl({
     type: contentType,
@@ -112,26 +102,23 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
   });
 
   const fullTitle =
-    defaultTitle === siteConfig.title
-      ? defaultTitle
-      : `${defaultTitle} | ${siteConfig.title}`;
+    defaultTitle === siteTitle ? defaultTitle : `${defaultTitle} | ${siteTitle}`;
 
   // Build default metadata object
   const defaultMetadata: Metadata = {
     title: fullTitle,
     description: defaultDescription,
     metadataBase: new URL(baseUrl),
-    creator: siteConfig.title,
-    authors: [{ name: siteConfig.title }],
+    creator: siteTitle,
+    authors: [{ name: siteTitle }],
     icons: {
       icon: `${baseUrl}/favicon.ico`,
     },
-    keywords: allKeywords,
+    keywords: pageKeywords,
     robots: seoNoIndex ? "noindex, nofollow" : "index, follow",
     twitter: {
       card: "summary_large_image",
       images: [ogImage],
-      creator: siteConfig.twitterHandle,
       title: defaultTitle,
       description: defaultDescription,
     },
@@ -140,7 +127,7 @@ export function getSEOMetadata(page: PageSeoData = {}): Metadata {
     },
     openGraph: {
       type: pageType ?? "website",
-      countryName: "UK",
+      countryName: "Sweden",
       description: defaultDescription,
       title: defaultTitle,
       images: [

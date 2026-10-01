@@ -2,17 +2,26 @@ import { ArrowUpRight, ChevronDown, ShoppingBag } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 
 import { SanityImage } from "@/components/sanity-image"
-import { SHOP_URL } from "@/components/sections/spa/shop"
 
 type HeroProps = {
-  title: string
-  subtitle: string
-  lead: string
+  eyebrow?: string
+  title?: string
+  subtitle?: string
+  lead?: string
   heroImage?: any
   heroLogo?: any
+  shopUrl?: string
 }
 
-export function HeroSection({ title, subtitle, lead, heroImage, heroLogo }: HeroProps) {
+export function HeroSection({
+  eyebrow,
+  title,
+  subtitle,
+  lead,
+  heroImage,
+  heroLogo,
+  shopUrl,
+}: HeroProps) {
   return (
     <section
       id="hero"
@@ -20,19 +29,8 @@ export function HeroSection({ title, subtitle, lead, heroImage, heroLogo }: Hero
     >
       <div className="absolute inset-0">
         {heroImage ? (
-          <SanityImage
-            image={heroImage}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <img
-            src="/images/hero-new.jpg"
-            alt=""
-            aria-hidden="true"
-            className="h-full w-full object-cover"
-          />
-        )}
+          <SanityImage image={heroImage} fill className="object-cover" />
+        ) : null}
         <div className="absolute inset-0 bg-linear-to-b from-background/60 via-background/80 to-background" />
       </div>
 
@@ -56,13 +54,15 @@ export function HeroSection({ title, subtitle, lead, heroImage, heroLogo }: Hero
             </div>
           ) : null}
 
-          <div className="mb-6 flex items-center justify-center gap-3">
-            <span className="accent-bar" />
-            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-              Ski Team Sweden Moguls
-            </span>
-            <span className="accent-bar" />
-          </div>
+          {eyebrow ? (
+            <div className="mb-6 flex items-center justify-center gap-3">
+              <span className="accent-bar" />
+              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                {eyebrow}
+              </span>
+              <span className="accent-bar" />
+            </div>
+          ) : null}
 
           <h1 className="mb-6 text-gradient-brand text-6xl font-black leading-[0.95] tracking-tight md:text-8xl lg:text-9xl">
             {title}
@@ -77,13 +77,15 @@ export function HeroSection({ title, subtitle, lead, heroImage, heroLogo }: Hero
           </p>
 
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button size="lg" variant="action" asChild>
-              <a href={SHOP_URL} target="_blank" rel="noopener noreferrer">
-                <ShoppingBag />
-                Handla i webshopen
-                <ArrowUpRight />
-              </a>
-            </Button>
+            {shopUrl ? (
+              <Button size="lg" variant="action" asChild>
+                <a href={shopUrl} target="_blank" rel="noopener noreferrer">
+                  <ShoppingBag />
+                  Handla i webshopen
+                  <ArrowUpRight />
+                </a>
+              </Button>
+            ) : null}
             <Button size="lg" variant="outline" asChild>
               <a href="#framgangar">Se våra framgångar</a>
             </Button>

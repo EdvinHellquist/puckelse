@@ -112,11 +112,15 @@ export const querySettingsData = defineQuery(`
     "logo": logo.asset->url + "?w=80&h=40&dpr=3&fit=max",
     "socialLinks": socialLinks,
     "contactEmail": contactEmail,
+    federationLink{ label, url },
+    footerTagline,
+    externalLinks[]{ _key, label, url },
   }
 `);
 
 export const queryHomePage = defineQuery(`
   *[_type == "homePage" && _id == "homePage"][0]{
+    heroEyebrow,
     heroTitle,
     heroSubtitle,
     heroLead,
@@ -128,7 +132,10 @@ export const queryHomePage = defineQuery(`
       logo{
         ${imageFields}
       }
-    }
+    },
+    newsSection{ eyebrow, title, intro },
+    clubsSection{ eyebrow, title, intro },
+    contactSection{ eyebrow, title, intro }
   }
 `);
 
@@ -162,6 +169,7 @@ export const queryClubs = defineQuery(`
 
 export const queryKomIgangPage = defineQuery(`
   *[_type == "komIgangPage" && _id == "komIgangPage"][0]{
+    eyebrow,
     title,
     subtitle,
     about{
@@ -182,6 +190,7 @@ export const queryKomIgangPage = defineQuery(`
 
 export const querySponsorerPage = defineQuery(`
   *[_type == "sponsorerPage" && _id == "sponsorerPage"][0]{
+    eyebrow,
     title,
     subtitle,
     benefitsTitle,
@@ -204,8 +213,19 @@ export const querySponsorerPage = defineQuery(`
 export const queryFreestyleSpiritPage = defineQuery(`
   *[_type == "freestyleSpiritPage" && _id == "freestyleSpiritPage"][0]{
     title,
-    subtitle,
-    heroImage { ${imageFields} }
+    heading,
+    intro,
+    hallOfFameTitle,
+    hallOfFameIntro
+  }
+`);
+
+export const queryShopPage = defineQuery(`
+  *[_type == "shopPage" && _id == "shopPage"][0]{
+    header{ eyebrow, title, intro },
+    shopUrl,
+    products[]{ _key, name, price, url, image{ ${imageFields} } },
+    cta{ eyebrow, title, text }
   }
 `);
 

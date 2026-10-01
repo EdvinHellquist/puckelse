@@ -22,6 +22,7 @@ import {
   SWEDEN_VIEWBOX,
   projectSweden,
 } from "@/components/sections/spa/sweden-map-data"
+import type { SectionIntro } from "@/components/sections/spa/types"
 
 export type Club = {
   _id: string
@@ -44,7 +45,13 @@ const { width: W, height: H } = SWEDEN_VIEWBOX
 const SWEEP_MS = 1400
 const MARKER_STAGGER_MS = 90
 
-export function KlubbarSection({ clubs }: { clubs: Club[] }) {
+export function KlubbarSection({
+  header,
+  clubs,
+}: {
+  header: SectionIntro
+  clubs: Club[]
+}) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [hoverId, setHoverId] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
@@ -108,17 +115,16 @@ export function KlubbarSection({ clubs }: { clubs: Club[] }) {
           <div className="mb-4 flex items-center justify-center gap-3">
             <span className="accent-bar" />
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-              Hitta din klubb
+              {header.eyebrow}
             </p>
             <span className="accent-bar" />
           </div>
           <h2 className="mb-5 text-4xl font-bold leading-tight md:text-5xl">
-            <span className="text-gradient-brand">Klubbar i Sverige</span>
+            <span className="text-gradient-brand">{header.title}</span>
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Klicka på en prick för att se var klubben finns och hur du kommer i
-            kontakt med den.
-          </p>
+          {header.intro ? (
+            <p className="text-lg text-muted-foreground">{header.intro}</p>
+          ) : null}
         </div>
 
         <div className="mx-auto grid max-w-5xl items-start gap-10 md:grid-cols-[auto_1fr] md:gap-14">
@@ -211,9 +217,7 @@ export function KlubbarSection({ clubs }: { clubs: Club[] }) {
 
           <div className="space-y-6">
             <div ref={detailsRef} className="scroll-mt-28">
-              {clubs.length === 0 ? (
-                <EmptyState />
-              ) : selected ? (
+              {clubs.length === 0 ? null : selected ? (
                 <ClubDetails club={selected} />
               ) : (
                 <div className="rounded-2xl border border-dashed border-border bg-card/60 p-6 text-center text-muted-foreground">
@@ -348,18 +352,6 @@ function ClubDetails({ club }: { club: Club }) {
           Inga kontaktuppgifter inlagda än.
         </p>
       ) : null}
-    </div>
-  )
-}
-
-function EmptyState() {
-  return (
-    <div className="rounded-2xl border border-dashed border-border bg-card/60 p-8 text-center">
-      <MapPin className="mx-auto mb-3 h-7 w-7 text-accent" />
-      <p className="font-display text-xl font-bold">Klubbarna är på väg</p>
-      <p className="mt-1 text-muted-foreground">
-        Snart kan du hitta din närmaste puckelklubb här.
-      </p>
     </div>
   )
 }

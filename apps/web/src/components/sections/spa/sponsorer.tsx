@@ -12,14 +12,16 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 type Benefit = { icon?: string; title?: string; description?: string }
 
 type SponsorerProps = {
-  title: string
-  subtitle: string
-  benefitsTitle: string
+  eyebrow?: string
+  title?: string
+  subtitle?: string
+  benefitsTitle?: string
   heroImage?: any
   benefits: Benefit[]
 }
 
 export function SponsorerSection({
+  eyebrow,
   title,
   subtitle,
   benefitsTitle,
@@ -39,7 +41,7 @@ export function SponsorerSection({
           <div className="mb-4 flex items-center justify-center gap-3">
             <span className="accent-bar" />
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-              Partnerskap
+              {eyebrow}
             </p>
             <span className="accent-bar" />
           </div>
@@ -50,29 +52,23 @@ export function SponsorerSection({
         </div>
 
         <div className="mx-auto max-w-6xl">
-          <div className="group relative mb-16">
-            <div
-              aria-hidden="true"
-              className="absolute -inset-1 rounded-3xl bg-linear-to-br from-accent/40 via-transparent to-primary/40 opacity-60 blur-xl transition-opacity group-hover:opacity-90"
-            />
-            <div className="relative overflow-hidden rounded-2xl border border-border/60 shadow-2xl">
-              <div className="relative aspect-[21/9]">
-                {heroImage ? (
+          {heroImage ? (
+            <div className="group relative mb-16">
+              <div
+                aria-hidden="true"
+                className="absolute -inset-1 rounded-3xl bg-linear-to-br from-accent/40 via-transparent to-primary/40 opacity-60 blur-xl transition-opacity group-hover:opacity-90"
+              />
+              <div className="relative overflow-hidden rounded-2xl border border-border/60 shadow-2xl">
+                <div className="relative aspect-[21/9]">
                   <SanityImage
                     image={heroImage}
                     fill
                     className="object-cover"
                   />
-                ) : (
-                  <img
-                    src="/images/sponsor-world-cup.jpg"
-                    alt="Sponsorskap"
-                    className="h-full w-full object-cover"
-                  />
-                )}
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
 
           {benefits.length ? (
             <div className="mx-auto max-w-4xl">

@@ -7,6 +7,7 @@ import {
   queryNews,
   querySeasons,
   querySettingsData,
+  queryShopPage,
   querySponsorerPage,
 } from "@workspace/sanity/query"
 
@@ -20,6 +21,8 @@ import { ShopSection } from "@/components/sections/spa/shop"
 import { KontaktSection } from "@/components/sections/spa/kontakt"
 import { SponsorMarquee } from "@/components/sponsor-marquee"
 
+// Allt innehåll kommer från Sanity. Saknas ett dokument renderas sektionen inte
+// alls, i stället för att visa platshållare.
 export default async function Page() {
   const [
     { data: home },
@@ -30,6 +33,7 @@ export default async function Page() {
     { data: seasons },
     { data: settings },
     { data: clubs },
+    { data: shop },
   ] = await Promise.all([
     sanityFetch({ query: queryHomePage, tags: ["homePage"] }),
     sanityFetch({ query: queryNews, tags: ["news"] }),
@@ -42,40 +46,22 @@ export default async function Page() {
     sanityFetch({ query: querySeasons, tags: ["seasons"] }),
     sanityFetch({ query: querySettingsData, tags: ["settings"] }),
     sanityFetch({ query: queryClubs, tags: ["clubs"] }),
+    sanityFetch({ query: queryShopPage, tags: ["shopPage"] }),
   ])
-
-  const heroTitle = home?.heroTitle ?? "Svensk Puckel"
-  const heroSubtitle = home?.heroSubtitle ?? "Svensk puckelåkning"
-  const heroLead =
-    home?.heroLead ??
-    "Upplev spänningen i moguls — där fart, hopp och precision möts på snön. Med parra som ny OS-sport 2026 är vi på väg mot nya höjder!"
-
-  const komIgangTitle = komIgang?.title ?? "Kom igång med Puckel!"
-  const komIgangSubtitle =
-    komIgang?.subtitle ??
-    "Puckelåkning är en av de mest spektakulära grenarna inom freestyle."
-  const aboutTitle = komIgang?.about?.cardTitle ?? "Vad är Puckelpist?"
-  const aboutBody =
-    komIgang?.about?.cardBody ??
-    "Puckelpist är en spektakulär freestylegren där åkare i hög fart tar sig nerför en brant pist fylld av täta pucklar och två hopp."
-  const benefitsTitle = komIgang?.benefitsTitle ?? "Varför Puckel?"
-
-  const sponsorTitle = sponsorer?.title ?? "Bli sponsor"
-  const sponsorSubtitle =
-    sponsorer?.subtitle ??
-    "Stöd svensk puckelåkning och få exponering i en av de mest spektakulära vintersporterna."
-  const sponsorBenefitsTitle =
-    sponsorer?.benefitsTitle ?? "Varför sponsra puckel?"
 
   return (
     <>
-      <HeroSection
-        title={heroTitle}
-        subtitle={heroSubtitle}
-        lead={heroLead}
-        heroImage={home?.heroImage}
-        heroLogo={home?.heroLogo}
-      />
+      {home ? (
+        <HeroSection
+          eyebrow={home.heroEyebrow}
+          title={home.heroTitle}
+          subtitle={home.heroSubtitle}
+          lead={home.heroLead}
+          heroImage={home.heroImage}
+          heroLogo={home.heroLogo}
+          shopUrl={shop?.shopUrl}
+        />
+      ) : null}
 
       {home?.mainSponsors?.length ? (
         <section
@@ -88,36 +74,52 @@ export default async function Page() {
         </section>
       ) : null}
 
-      <KomIgangSection
-        title={komIgangTitle}
-        subtitle={komIgangSubtitle}
-        aboutTitle={aboutTitle}
-        aboutBody={aboutBody}
-        aboutImage={komIgang?.about?.image}
-        benefitsTitle={benefitsTitle}
-        benefits={komIgang?.benefits ?? []}
-      />
+      {komIgang ? (
+        <KomIgangSection
+          eyebrow={komIgang.eyebrow}
+          title={komIgang.title}
+          subtitle={komIgang.subtitle}
+          aboutTitle={komIgang.about?.cardTitle}
+          aboutBody={komIgang.about?.cardBody}
+          aboutImage={komIgang.about?.image}
+          benefitsTitle={komIgang.benefitsTitle}
+          benefits={komIgang.benefits ?? []}
+        />
+      ) : null}
 
-      <KlubbarSection clubs={clubs ?? []} />
+      {home?.clubsSection ? (
+        <KlubbarSection header={home.clubsSection} clubs={clubs ?? []} />
+      ) : null}
 
-      <FramgangarSection seasons={seasons ?? []} />
+      {freestyle ? (
+        <FramgangarSection content={freestyle} seasons={seasons ?? []} />
+      ) : null}
 
-      <NyheterSection news={news ?? []} />
+      {home?.newsSection && news?.length ? (
+        <NyheterSection header={home.newsSection} news={news} />
+      ) : null}
 
-      <SponsorerSection
-        title={sponsorTitle}
-        subtitle={sponsorSubtitle}
-        benefitsTitle={sponsorBenefitsTitle}
-        heroImage={sponsorer?.heroImage}
-        benefits={sponsorer?.benefits ?? []}
-      />
+      {sponsorer ? (
+        <SponsorerSection
+          eyebrow={sponsorer.eyebrow}
+          title={sponsorer.title}
+          subtitle={sponsorer.subtitle}
+          benefitsTitle={sponsorer.benefitsTitle}
+          heroImage={sponsorer.heroImage}
+          benefits={sponsorer.benefits ?? []}
+        />
+      ) : null}
 
-      <ShopSection />
+      {shop ? <ShopSection shop={shop} /> : null}
 
-      <KontaktSection
-        email={settings?.contactEmail}
-        socials={settings?.socialLinks}
-      />
+      {home?.contactSection ? (
+        <KontaktSection
+          header={home.contactSection}
+          email={settings?.contactEmail}
+          socials={settings?.socialLinks}
+          federationLink={settings?.federationLink}
+        />
+      ) : null}
     </>
   )
 }

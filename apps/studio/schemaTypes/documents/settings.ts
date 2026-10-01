@@ -75,6 +75,26 @@ export const settings = defineType({
       validation: (rule) => rule.email(),
     }),
     socialLinks,
+    defineField({
+      name: "federationLink",
+      type: "labeledLink",
+      title: "Förbundslänk",
+      description: "Visas i menyn och i kontaktrutan (Skidförbundet)",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "footerTagline",
+      type: "string",
+      title: "Footer-slogan",
+      description: 'Meningar separerade med punkt, varannan färgas orange. Ex: "Fart. Hopp. Precision."',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "externalLinks",
+      type: "array",
+      title: "Externa länkar (footer)",
+      of: [{ type: "labeledLink" }],
+    }),
   ],
   preview: {
     select: {

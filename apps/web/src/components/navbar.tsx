@@ -24,9 +24,13 @@ const sections = [
   { id: "kontakt", label: "Kontakt" },
 ]
 
-const SKIDFORBUND_URL = "https://www.skidor.com/idrotter/puckel"
+type FederationLink = { label?: string | null; url?: string | null }
 
-export default function Navbar() {
+export default function Navbar({
+  federationLink,
+}: {
+  federationLink?: FederationLink | null
+}) {
   const [active, setActive] = useState<string>("hero")
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
@@ -78,7 +82,7 @@ export default function Navbar() {
           PUCKEL
         </a>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {sections.map((s) => (
             <a
               key={s.id}
@@ -93,21 +97,25 @@ export default function Navbar() {
               {s.label}
             </a>
           ))}
-          <span className="mx-2 h-5 w-px bg-border" />
-          <a
-            href={SKIDFORBUND_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Skidförbundet
-            <ExternalLink className="h-3 w-3" />
-          </a>
+          {federationLink?.url ? (
+            <>
+              <span className="mx-2 h-5 w-px bg-border" />
+              <a
+                href={federationLink.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {federationLink.label}
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </>
+          ) : null}
         </nav>
 
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button size="icon" variant="ghost" className="md:hidden">
+            <Button size="icon" variant="ghost" className="lg:hidden">
               <Menu className="size-5" />
               <span className="sr-only">Öppna meny</span>
             </Button>
@@ -139,18 +147,22 @@ export default function Navbar() {
                   </a>
                 </SheetClose>
               ))}
-              <div className="my-3 h-px bg-border" />
-              <SheetClose asChild>
-                <a
-                  href={SKIDFORBUND_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium text-muted-foreground transition-colors hover:bg-muted"
-                >
-                  Skidförbundet
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </SheetClose>
+              {federationLink?.url ? (
+                <>
+                  <div className="my-3 h-px bg-border" />
+                  <SheetClose asChild>
+                    <a
+                      href={federationLink.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium text-muted-foreground transition-colors hover:bg-muted"
+                    >
+                      {federationLink.label}
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </SheetClose>
+                </>
+              ) : null}
             </nav>
           </SheetContent>
         </Sheet>

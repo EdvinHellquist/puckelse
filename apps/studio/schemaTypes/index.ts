@@ -6,6 +6,7 @@ import { richText } from "@/schemaTypes/definitions/rich-text";
 import { komIgangBenefit } from "./definitions/kom-igang-benefit";
 import { seasonResult } from "./definitions/seasonResult";
 import { seasonLinkCard } from "./definitions/seasonLinkCard";
+import { labeledLink, sectionIntro } from "./definitions/sectionIntro";
 
 export const schemaTypes = [
   ...documents,
@@ -13,7 +14,9 @@ export const schemaTypes = [
   komIgangBenefit,
   richText,
   seasonResult,
-  seasonLinkCard
+  seasonLinkCard,
+  sectionIntro,
+  labeledLink,
 ];
 
 export default schemaTypes;

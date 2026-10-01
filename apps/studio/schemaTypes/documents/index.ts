@@ -8,7 +8,8 @@ import { freestyleSpiritPage } from "./freestyleSpiritPage";
 import { season } from "./season";
 import { legendSkier } from "./legendSkier";
 import { club } from "./club";
+import { shopPage } from "./shopPage";
 
 export const documents = [page, news, season, legendSkier, club];
-export const singletons = [homePage, komIgangPage, settings, sponsorerPage, freestyleSpiritPage];
+export const singletons = [homePage, komIgangPage, settings, sponsorerPage, freestyleSpiritPage, shopPage];
 

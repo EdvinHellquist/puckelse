@@ -8,6 +8,13 @@ export const sponsorerPage = defineType({
   icon: FileText,
   fields: [
     defineField({
+      name: "eyebrow",
+      title: "Överrubrik",
+      type: "string",
+      description: "Den lilla texten ovanför rubriken",
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: "title",
       title: "Rubrik",
       type: "string",

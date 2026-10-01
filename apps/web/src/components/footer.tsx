@@ -4,20 +4,7 @@ import Link from "next/link"
 import { sanityFetch } from "@workspace/sanity/live"
 import { querySettingsData } from "@workspace/sanity/query"
 
-const externalLinks = [
-  {
-    label: "Svenska Skidförbundet",
-    href: "https://www.skidor.com/idrotter/puckel",
-  },
-  {
-    label: "FIS Freestyle Skiing",
-    href: "https://www.fis-ski.com/en/freestyle-skiing",
-  },
-  {
-    label: "Sveriges Olympiska Kommitté",
-    href: "https://sok.se",
-  },
-]
+type ExternalLinkItem = { _key: string; label?: string; url?: string }
 
 export default async function Footer() {
   const { data } = await sanityFetch({
@@ -27,6 +14,9 @@ export default async function Footer() {
 
   const email = data?.contactEmail
   const socials = data?.socialLinks
+  const externalLinks: ExternalLinkItem[] = data?.externalLinks ?? []
+  // "Fart. Hopp. Precision." — varannan mening färgas orange.
+  const taglineParts: string[] = data?.footerTagline?.match(/[^.]+.?/g) ?? []
 
   return (
     <footer
@@ -50,13 +40,21 @@ export default async function Footer() {
             >
               PUCKEL
             </a>
-            <p className="mt-3 text-2xl font-extrabold leading-tight text-white">
-              Fart.{" "}
-              <span style={{ color: "hsl(24 100% 82%)" }}>Hopp.</span>{" "}
-              Precision.
-            </p>
+            {taglineParts.length ? (
+              <p className="mt-3 text-2xl font-extrabold leading-tight text-white">
+                {taglineParts.map((part, i) => (
+                  <span
+                    key={`${i}-${part}`}
+                    style={i % 2 ? { color: "hsl(24 100% 82%)" } : undefined}
+                  >
+                    {part.trim()}{" "}
+                  </span>
+                ))}
+              </p>
+            ) : null}
           </div>
 
+          {externalLinks.length ? (
           <div className="md:justify-self-end">
             <h4
               className="mb-4 text-xs font-semibold uppercase tracking-[0.2em]"
@@ -66,9 +64,9 @@ export default async function Footer() {
             </h4>
             <ul className="space-y-2 text-sm">
               {externalLinks.map((link) => (
-                <li key={link.href}>
+                <li key={link._key}>
                   <Link
-                    href={link.href}
+                    href={link.url ?? ""}
                     target="_blank"
                     rel="noopener noreferrer"
                     prefetch={false}
@@ -82,6 +80,7 @@ export default async function Footer() {
               ))}
             </ul>
           </div>
+          ) : null}
         </div>
 
         <div
@@ -91,7 +90,9 @@ export default async function Footer() {
             color: "hsl(205 80% 94%)",
           }}
         >
-          <p>© {new Date().getFullYear()} Puckel.se</p>
+          <p>
+            © {new Date().getFullYear()} {data?.siteTitle}
+          </p>
 
           <div className="flex items-center gap-2">
             {email ? (

@@ -52,6 +52,15 @@ type Season = {
   smResults?: SeasonResult[]
 }
 
+// Texterna kommer från Sanity-dokumentet freestyleSpiritPage.
+type FramgangarContent = {
+  title?: string
+  heading?: string
+  intro?: string
+  hallOfFameTitle?: string
+  hallOfFameIntro?: string
+}
+
 type TaggedResult = SeasonResult & { season: string }
 
 type Medalist = {
@@ -134,7 +143,13 @@ function medalStyle(place: number) {
   return { label: "Brons", className: "bg-amber-700 text-amber-50" }
 }
 
-export function FramgangarSection({ seasons }: { seasons: Season[] }) {
+export function FramgangarSection({
+  content,
+  seasons,
+}: {
+  content: FramgangarContent
+  seasons: Season[]
+}) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const [seasonIndex, setSeasonIndex] = useState(0)
 
@@ -232,16 +247,16 @@ export function FramgangarSection({ seasons }: { seasons: Season[] }) {
           <div className="mb-4 flex items-center justify-center gap-3">
             <span className="accent-bar" />
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-              Freestyle Spirit
+              {content.title}
             </p>
             <span className="accent-bar" />
           </div>
           <h2 className="mb-5 text-4xl font-bold leading-tight md:text-5xl">
-            <span className="text-gradient-brand">Framgångar genom åren</span>
+            <span className="text-gradient-brand">{content.heading}</span>
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Resultat från OS, VM, Världscupen och nationella tävlingar.
-          </p>
+          {content.intro ? (
+            <p className="text-lg text-muted-foreground">{content.intro}</p>
+          ) : null}
         </div>
 
         <div className="mx-auto max-w-6xl">
@@ -354,11 +369,14 @@ export function FramgangarSection({ seasons }: { seasons: Season[] }) {
 
           <div className="mt-20">
             <div className="mb-10 text-center">
-              <h3 className="mb-3 text-3xl font-bold">Hall of Fame</h3>
-              <p className="mx-auto max-w-xl text-muted-foreground">
-                Totalt antal medaljer och segrar från Sveriges bästa
-                puckelåkare. Klicka för att se vilka som står bakom siffrorna.
-              </p>
+              <h3 className="mb-3 text-3xl font-bold">
+                {content.hallOfFameTitle}
+              </h3>
+              {content.hallOfFameIntro ? (
+                <p className="mx-auto max-w-xl text-muted-foreground">
+                  {content.hallOfFameIntro}
+                </p>
+              ) : null}
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">

@@ -12,16 +12,18 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 type Benefit = { icon?: string; title?: string; text?: string }
 
 type KomIgangProps = {
-  title: string
-  subtitle: string
-  aboutTitle: string
-  aboutBody: string
+  eyebrow?: string
+  title?: string
+  subtitle?: string
+  aboutTitle?: string
+  aboutBody?: string
   aboutImage?: any
-  benefitsTitle: string
+  benefitsTitle?: string
   benefits: Benefit[]
 }
 
 export function KomIgangSection({
+  eyebrow,
   title,
   subtitle,
   aboutTitle,
@@ -43,7 +45,7 @@ export function KomIgangSection({
           <div className="mb-4 flex items-center justify-center gap-3">
             <span className="accent-bar" />
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-              Kom igång
+              {eyebrow}
             </p>
             <span className="accent-bar" />
           </div>
@@ -54,30 +56,26 @@ export function KomIgangSection({
         </div>
 
         <div className="mx-auto mb-20 max-w-6xl">
-          <div className="grid items-center gap-10 md:grid-cols-2">
-            <div className="group relative">
-              <div
-                aria-hidden="true"
-                className="absolute -inset-2 rounded-3xl bg-linear-to-br from-primary/30 to-accent/30 opacity-70 blur-xl transition-opacity group-hover:opacity-100"
-              />
-              <div className="relative overflow-hidden rounded-2xl border border-border/60 shadow-2xl">
-                <div className="relative aspect-4/3">
-                  {aboutImage ? (
+          <div
+            className={`grid items-center gap-10 ${aboutImage ? "md:grid-cols-2" : "mx-auto max-w-3xl"}`}
+          >
+            {aboutImage ? (
+              <div className="group relative">
+                <div
+                  aria-hidden="true"
+                  className="absolute -inset-2 rounded-3xl bg-linear-to-br from-primary/30 to-accent/30 opacity-70 blur-xl transition-opacity group-hover:opacity-100"
+                />
+                <div className="relative overflow-hidden rounded-2xl border border-border/60 shadow-2xl">
+                  <div className="relative aspect-4/3">
                     <SanityImage
                       image={aboutImage}
                       fill
                       className="object-cover"
                     />
-                  ) : (
-                    <img
-                      src="/images/kom-igang-traning.jpg"
-                      alt="Träning på puckelpist"
-                      className="h-full w-full object-cover"
-                    />
-                  )}
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : null}
 
             <div>
               <div

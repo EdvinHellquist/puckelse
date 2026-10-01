@@ -3,9 +3,11 @@ import Link from "next/link"
 
 import { Button } from "@workspace/ui/components/button"
 
-const SKIDFORBUND_URL = "https://www.skidor.com/idrotter/puckel"
+import type { LabeledLink, SectionIntro } from "@/components/sections/spa/types"
 
 type KontaktProps = {
+  header: SectionIntro
+  federationLink?: LabeledLink | null
   email?: string | null
   socials?: {
     facebook?: string
@@ -14,7 +16,12 @@ type KontaktProps = {
   } | null
 }
 
-export function KontaktSection({ email, socials }: KontaktProps) {
+export function KontaktSection({
+  header,
+  federationLink,
+  email,
+  socials,
+}: KontaktProps) {
   return (
     <section
       id="kontakt"
@@ -37,15 +44,14 @@ export function KontaktSection({ email, socials }: KontaktProps) {
             />
             <div className="relative mx-auto max-w-3xl text-center text-primary-foreground">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest opacity-80">
-                Kontakt
+                {header.eyebrow}
               </p>
               <h2 className="mb-5 text-4xl font-bold leading-tight md:text-5xl">
-                Vill du bli en del av resan?
+                {header.title}
               </h2>
-              <p className="mb-10 text-lg opacity-90">
-                Fråga om sponsring, samarbeten eller bara säg hej — vi svarar
-                gärna.
-              </p>
+              {header.intro ? (
+                <p className="mb-10 text-lg opacity-90">{header.intro}</p>
+              ) : null}
 
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
                 {email ? (
@@ -56,21 +62,23 @@ export function KontaktSection({ email, socials }: KontaktProps) {
                     </a>
                   </Button>
                 ) : null}
-                <Button
-                  size="lg"
-                  variant="outline"
-                  asChild
-                  className="border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white"
-                >
-                  <a
-                    href={SKIDFORBUND_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                {federationLink?.url ? (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    asChild
+                    className="border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white"
                   >
-                    Skidförbundet
-                    <ExternalLink className="ml-2 h-4 w-4" />
-                  </a>
-                </Button>
+                    <a
+                      href={federationLink.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {federationLink.label}
+                      <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
+                ) : null}
               </div>
 
               {socials?.facebook || socials?.instagram || socials?.youtube ? (

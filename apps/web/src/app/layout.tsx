@@ -1,7 +1,8 @@
 import "@workspace/ui/globals.css";
 
 import type { Metadata } from "next";
-import { SanityLive } from "@workspace/sanity/live";
+import { SanityLive, sanityFetch } from "@workspace/sanity/live";
+import { querySettingsData } from "@workspace/sanity/query";
 import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
@@ -32,20 +33,31 @@ const fontDisplay = Bricolage_Grotesque({
   weight: ["500", "600", "700", "800"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(getBaseUrl()),
-  title: {
-    default: "Puckel.se – Svensk puckelåkning",
-    template: "%s · Puckel.se",
-  },
-  description:
-    "Allt om svensk puckelåkning – landslaget, resultat, träning och sponsorer. På väg mot OS 2026 i Livigno.",
-  openGraph: {
-    type: "website",
-    locale: "sv_SE",
-    siteName: "Puckel.se",
-  },
-};
+async function getSettings() {
+  const { data } = await sanityFetch({
+    query: querySettingsData,
+    tags: ["settings"],
+  });
+  return data;
+}
+
+// Titel och beskrivning redigeras i Sanity under Settings.
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  const siteTitle = settings?.siteTitle ?? undefined;
+  return {
+    metadataBase: new URL(getBaseUrl()),
+    title: siteTitle
+      ? { default: siteTitle, template: `%s · ${siteTitle}` }
+      : undefined,
+    description: settings?.siteDescription ?? undefined,
+    openGraph: {
+      type: "website",
+      locale: "sv_SE",
+      siteName: siteTitle,
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -54,13 +66,14 @@ export default async function RootLayout({
 }>) {
   preconnect("https://cdn.sanity.io");
   prefetchDNS("https://cdn.sanity.io");
+  const settings = await getSettings();
   return (
     <html lang="sv" suppressHydrationWarning>
       <body
         className={`${fontSans.variable} ${fontMono.variable} ${fontDisplay.variable} font-sans antialiased`}
       >
         <Providers>
-          <Navbar />
+          <Navbar federationLink={settings?.federationLink} />
           {children}
           <Footer />
           <SanityLive />

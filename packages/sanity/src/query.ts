@@ -132,13 +132,31 @@ export const queryHomePage = defineQuery(`
   }
 `);
 
-export const queryLatestNews = defineQuery(`
-  *[_type == "news"] | order(publishedAt desc)[0]{
+export const queryNews = defineQuery(`
+  *[_type == "news"] | order(publishedAt desc)[0...20]{
+    _id,
     title,
     excerpt,
     publishedAt,
     link,
     coverImage{ ${imageFields} }
+  }
+`);
+
+export const queryClubs = defineQuery(`
+  *[_type == "club" && defined(location.lat) && defined(location.lng)] | order(name asc){
+    _id,
+    name,
+    city,
+    "lat": location.lat,
+    "lng": location.lng,
+    website,
+    facebook,
+    instagram,
+    contactName,
+    email,
+    phone,
+    logo{ ${imageFields} }
   }
 `);
 

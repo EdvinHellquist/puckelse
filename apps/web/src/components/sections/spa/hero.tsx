@@ -1,7 +1,8 @@
-import { ChevronDown } from "lucide-react"
+import { ArrowUpRight, ChevronDown, ShoppingBag } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 
 import { SanityImage } from "@/components/sanity-image"
+import { SHOP_URL } from "@/components/sections/spa/shop"
 
 type HeroProps = {
   title: string
@@ -77,7 +78,11 @@ export function HeroSection({ title, subtitle, lead, heroImage, heroLogo }: Hero
 
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button size="lg" variant="action" asChild>
-              <a href="#kom-igang">Kom igång</a>
+              <a href={SHOP_URL} target="_blank" rel="noopener noreferrer">
+                <ShoppingBag />
+                Handla i webshopen
+                <ArrowUpRight />
+              </a>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <a href="#framgangar">Se våra framgångar</a>

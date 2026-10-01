@@ -1,9 +1,10 @@
 import { sanityFetch } from "@workspace/sanity/live"
 import {
+  queryClubs,
   queryFreestyleSpiritPage,
   queryHomePage,
   queryKomIgangPage,
-  queryLatestNews,
+  queryNews,
   querySeasons,
   querySettingsData,
   querySponsorerPage,
@@ -11,6 +12,7 @@ import {
 
 import { HeroSection } from "@/components/sections/spa/hero"
 import { KomIgangSection } from "@/components/sections/spa/kom-igang"
+import { KlubbarSection } from "@/components/sections/spa/klubbar"
 import { FramgangarSection } from "@/components/sections/spa/framgangar"
 import { NyheterSection } from "@/components/sections/spa/nyheter"
 import { SponsorerSection } from "@/components/sections/spa/sponsorer"
@@ -27,9 +29,10 @@ export default async function Page() {
     { data: freestyle },
     { data: seasons },
     { data: settings },
+    { data: clubs },
   ] = await Promise.all([
     sanityFetch({ query: queryHomePage, tags: ["homePage"] }),
-    sanityFetch({ query: queryLatestNews, tags: ["news"] }),
+    sanityFetch({ query: queryNews, tags: ["news"] }),
     sanityFetch({ query: queryKomIgangPage, tags: ["komIgang"] }),
     sanityFetch({ query: querySponsorerPage, tags: ["sponsorerPage"] }),
     sanityFetch({
@@ -38,6 +41,7 @@ export default async function Page() {
     }),
     sanityFetch({ query: querySeasons, tags: ["seasons"] }),
     sanityFetch({ query: querySettingsData, tags: ["settings"] }),
+    sanityFetch({ query: queryClubs, tags: ["clubs"] }),
   ])
 
   const heroTitle = home?.heroTitle ?? "Svensk Puckel"
@@ -94,9 +98,11 @@ export default async function Page() {
         benefits={komIgang?.benefits ?? []}
       />
 
+      <KlubbarSection clubs={clubs ?? []} />
+
       <FramgangarSection seasons={seasons ?? []} />
 
-      <NyheterSection news={news ?? null} />
+      <NyheterSection news={news ?? []} />
 
       <SponsorerSection
         title={sponsorTitle}

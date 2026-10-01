@@ -1,5 +1,5 @@
 // apps/studio/structure.ts
-import { DollarSign, HandMetal, HomeIcon, ListStart, Newspaper, Settings2 } from "lucide-react";
+import { DollarSign, HandMetal, HomeIcon, ListStart, MapPin, Newspaper, Settings2 } from "lucide-react";
 import type { StructureBuilder, StructureResolverContext } from "sanity/structure";
 
 export const structure = (S: StructureBuilder, _context: StructureResolverContext) =>
@@ -43,6 +43,10 @@ export const structure = (S: StructureBuilder, _context: StructureResolverContex
       S.divider(),      
       // Nyheter (lista)
       S.documentTypeListItem("news").title("Nyheter").icon(Newspaper),
+
+      S.divider(),
+
+      S.documentTypeListItem("club").title("Klubbar").icon(MapPin),
 
       S.divider(),
 

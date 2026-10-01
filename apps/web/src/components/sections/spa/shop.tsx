@@ -8,7 +8,8 @@ import {
   CarouselPrevious,
 } from "@workspace/ui/components/carousel"
 
-const SHOP_URL = "https://e-line.meri.se/sv034/Ski_Team_Moguls_Start/Produkter"
+export const SHOP_URL =
+  "https://e-line.meri.se/sv034/Ski_Team_Moguls_Start/Produkter"
 const IMAGE_BASE = "https://e-line.meri.se/images/prod200"
 
 // Speglar sortimentet i MERi-shoppen. `slug` + `id` bygger djuplänken till

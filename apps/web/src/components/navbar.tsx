@@ -16,6 +16,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 const sections = [
   { id: "kom-igang", label: "Kom igång" },
+  { id: "klubbar", label: "Klubbar" },
   { id: "framgangar", label: "Framgångar" },
   { id: "nyheter", label: "Nyheter" },
   { id: "sponsorer", label: "Sponsorer" },

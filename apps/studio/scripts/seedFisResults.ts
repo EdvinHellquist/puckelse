@@ -22,7 +22,7 @@ import {
 } from "./seasonHelpers.js";
 
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
-const INPUT_PATH = join(scriptsDir, "fis-results.json");
+const INPUT_PATH = join(scriptsDir, process.env.FIS_INPUT ?? "fis-results.json");
 const DRY_RUN = process.env.DRY_RUN === "1";
 
 const client = createClient({
@@ -108,7 +108,8 @@ async function main() {
     const existing = await client.fetch<SanitySeason | null>(
       `*[_type == "season" && label == $label][0]{
         _id, label, yearStart,
-        worldCupResults, europaCupResults, vmResults, osResults, smResults
+        worldCupResults, europaCupResults, svenskaCupenResults, ymgResults,
+        vmResults, osResults, smResults
       }`,
       { label: season.label },
     );

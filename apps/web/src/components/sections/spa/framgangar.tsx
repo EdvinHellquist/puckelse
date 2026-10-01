@@ -36,7 +36,7 @@ type SeasonResult = {
   discipline: string
   skier: string
   place: number
-  level: "WC" | "EC" | "SC" | "YMG" | "VM" | "OS" | "SM" | "OTHER"
+  level: "WC" | "EC" | "SC" | "YMG" | "VM" | "JVM" | "OS" | "SM" | "OTHER"
 }
 
 type Season = {
@@ -294,8 +294,8 @@ export function FramgangarSection({ seasons }: { seasons: Season[] }) {
                 ) : null}
                 {vmResults.length ? (
                   <ResultRow
-                    title="VM"
-                    tag="VM"
+                    title={vmTitle(vmResults)}
+                    tag={vmTag(vmResults)}
                     accent="border-l-primary"
                     open={openKey === "vm"}
                     onToggle={(el) => toggle("vm", el)}
@@ -388,6 +388,18 @@ export function FramgangarSection({ seasons }: { seasons: Season[] }) {
   )
 }
 
+// Junior-VM-medaljer ligger i vmResults men märks ut, och räknas aldrig som VM-medaljer.
+function vmTitle(results: SeasonResult[]) {
+  const hasJvm = results.some((r) => r.level === "JVM")
+  const hasVm = results.some((r) => r.level !== "JVM")
+  if (hasJvm && hasVm) return "VM & Junior-VM"
+  return hasJvm ? "Junior-VM" : "VM"
+}
+
+function vmTag(results: SeasonResult[]) {
+  return results.every((r) => r.level === "JVM") ? "JVM" : "VM"
+}
+
 function ResultRow({
   title,
   tag,
@@ -467,6 +479,14 @@ function ResultRow({
                         key={`${r.competition}-${r.date}-${r.skier}-${r.place}`}
                       >
                         <TableCell className="font-medium">
+                          {r.level === "JVM" ? (
+                            <Badge
+                              variant="outline"
+                              className="mr-2 border-accent text-xs text-accent"
+                            >
+                              Junior-VM
+                            </Badge>
+                          ) : null}
                           {r.competition}
                         </TableCell>
                         <TableCell>{r.date}</TableCell>

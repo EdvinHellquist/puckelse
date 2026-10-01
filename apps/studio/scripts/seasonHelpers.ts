@@ -1,4 +1,4 @@
-export type Level = "WC" | "EC" | "SC" | "YMG" | "VM" | "OS" | "SM" | "OTHER";
+export type Level = "WC" | "EC" | "SC" | "YMG" | "VM" | "JVM" | "OS" | "SM" | "OTHER";
 export type Discipline = "MO" | "DM";
 
 export type RawRow = {
@@ -142,6 +142,7 @@ export function levelToField(level: Level): keyof SeasonBuckets | null {
     case "OS":
       return "osResults";
     case "VM":
+    case "JVM":
       return "vmResults";
     case "SM":
       return "smResults";

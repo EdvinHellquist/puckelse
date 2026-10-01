@@ -33,6 +33,18 @@ Remove-Item Env:\SANITY_TOKEN
 
 Bash-varianten är samma sak med `SEASON_FROM=2026 SEASON_TO=2027 pnpm --filter studio fis:fetch` osv.
 
+### Junior-VM
+
+JVM-medaljer (FIS-kategori `WJC`) hamnar i `vmResults` med `level: "JVM"`, så att
+sajten kan märka ut dem och Hall of Fame inte räknar dem som VM-medaljer. Kategorin
+läses per lopp från eventsidan — vissa event blandar EC och JVM (Jyväskylä 2011).
+
+```powershell
+pnpm --filter studio fis:fetch:jvm      # bara WJC, skriver scripts/fis-jvm-results.json
+pnpm --filter studio fis:seed:jvm:dry
+pnpm --filter studio fis:seed:jvm
+```
+
 ### SANITY_TOKEN
 
 Skripten läser `apps/studio/.env` (inte roten — `pnpm --filter studio` kör med

@@ -31,6 +31,7 @@
 # FIS scraper artefacts
 scripts/.fis-cache/
 scripts/fis-results.json
+scripts/fis-jvm-results.json
 
 
 # Sanity Functions

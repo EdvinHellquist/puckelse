@@ -19,6 +19,9 @@
     "fis:fetch": "tsx scripts/fetchFisResults.ts",
     "fis:seed:dry": "cross-env DRY_RUN=1 tsx scripts/seedFisResults.ts",
     "fis:seed": "tsx scripts/seedFisResults.ts",
+    "fis:fetch:jvm": "cross-env FIS_CATEGORIES=WJC FIS_OUTPUT=fis-jvm-results.json tsx scripts/fetchFisResults.ts",
+    "fis:seed:jvm:dry": "cross-env DRY_RUN=1 FIS_INPUT=fis-jvm-results.json tsx scripts/seedFisResults.ts",
+    "fis:seed:jvm": "cross-env FIS_INPUT=fis-jvm-results.json tsx scripts/seedFisResults.ts",
     "sanity:cleanup:dry": "cross-env DRY_RUN=1 tsx scripts/cleanupSanityRows.ts",
     "sanity:cleanup": "tsx scripts/cleanupSanityRows.ts"
   },

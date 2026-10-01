@@ -9,7 +9,7 @@ import { normalizeCompetition, normalizeSkier } from "./aliases.js";
 
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const CACHE_DIR = join(scriptsDir, ".fis-cache");
-const OUTPUT_PATH = join(scriptsDir, "fis-results.json");
+const OUTPUT_PATH = join(scriptsDir, process.env.FIS_OUTPUT ?? "fis-results.json");
 
 const FIS_ORIGIN = "https://www.fis-ski.com";
 const USER_AGENT = "puckelse-seed/1.0 (contact: edvin@iteract.se)";
@@ -17,11 +17,13 @@ const REQUEST_DELAY_MS = 250;
 const NATION = "SWE";
 const PODIUM_MAX_PLACE = 3;
 
-type FisCategory = "WC" | "EC" | "WSC" | "OWG" | "NC" | "FIS";
+type FisCategory = "WC" | "EC" | "WSC" | "WJC" | "OWG" | "NC" | "FIS";
 const FIS_TO_LEVEL: Record<FisCategory, Level> = {
   WC: "WC",
   EC: "EC",
   WSC: "VM",
+  // Junior-VM lands in vmResults but keeps its own level so it never counts as a senior VM medal.
+  WJC: "JVM",
   OWG: "OS",
   NC: "SM",
   // Base-tier "FIS" races hosted in Sweden are the domestic Svenska Cupen circuit.
@@ -34,7 +36,12 @@ const NATION_HOSTED_CATEGORIES: Partial<Record<FisCategory, string>> = {
   FIS: "SWE",
 };
 
-const CATEGORIES: FisCategory[] = ["WC", "EC", "WSC", "OWG", "NC", "FIS"];
+const ALL_CATEGORIES: FisCategory[] = ["WC", "EC", "WSC", "WJC", "OWG", "NC", "FIS"];
+
+// FIS_CATEGORIES=WJC (comma-separated) limits the run to a subset of categories.
+const CATEGORIES: FisCategory[] = process.env.FIS_CATEGORIES
+  ? ALL_CATEGORIES.filter((c) => process.env.FIS_CATEGORIES!.split(",").map((x) => x.trim()).includes(c))
+  : ALL_CATEGORIES;
 const DISCIPLINES: Discipline[] = ["MO", "DM"];
 const GENDERS = ["M", "W"] as const;
 
@@ -138,6 +145,9 @@ type EventRace = {
   raceId: number;
   discipline: Discipline;
   gender: "M" | "W";
+  // Per-race category code from the event row ("WJC", "EC", ...). Events can mix categories,
+  // e.g. Jyväskylä 2011 ran EC moguls on day one and Junior-VM races after.
+  category: string | null;
 };
 
 function extractRacesFromEvent($: CheerioAPI): EventRace[] {
@@ -182,8 +192,11 @@ function extractRacesFromEvent($: CheerioAPI): EventRace[] {
     }
     if (!gender) return;
 
+    const categoryMatch = rowText.match(/\b(WC|EC|WSC|WJC|OWG|NC|FIS)\s+[MW]\b/);
+    const category = categoryMatch ? categoryMatch[1] : null;
+
     seenIds.add(raceId);
-    races.push({ raceId, discipline, gender });
+    races.push({ raceId, discipline, gender, category });
   });
 
   return races;
@@ -213,7 +226,8 @@ function extractRacePage($: CheerioAPI): { meta: RaceMeta; finishers: Finisher[]
 
   const catText = $(".heading, .info-value").text();
   let eventCategory: FisCategory | null = null;
-  if (/World Cup/i.test(catText)) eventCategory = "WC";
+  if (/Junior World/i.test(catText)) eventCategory = "WJC";
+  else if (/World Cup/i.test(catText)) eventCategory = "WC";
   else if (/Europa Cup/i.test(catText)) eventCategory = "EC";
   else if (/World Ski Championship|World Championship/i.test(catText)) eventCategory = "WSC";
   else if (/Olympic/i.test(catText)) eventCategory = "OWG";
@@ -277,7 +291,7 @@ async function main() {
   const rows: RawRow[] = [];
   const seenRaces = new Set<number>();
 
-  console.log(`Fetching FIS results — seasons ${from}..${to}, nation ${NATION}, top ${PODIUM_MAX_PLACE}`);
+  console.log(`Fetching FIS results — seasons ${from}..${to}, nation ${NATION}, top ${PODIUM_MAX_PLACE}, categories ${CATEGORIES.join(",")}`);
   console.log(`Cache: ${CACHE_DIR}`);
 
   for (const category of CATEGORIES) {
@@ -313,8 +327,12 @@ async function main() {
             }
             const $evt = load(evtHtml);
             const allRaces = extractRacesFromEvent($evt);
+            // Junior-VM races only count as JVM, and only the WJC pass may pick them up.
             const races = allRaces.filter(
-              (r) => r.discipline === discipline && r.gender === gender,
+              (r) =>
+                r.discipline === discipline &&
+                r.gender === gender &&
+                (r.category === "WJC") === (category === "WJC"),
             );
             console.log(`  event ${eventId}: ${allRaces.length} race(s) total, ${races.length} matching ${discipline}/${gender}`);
 

@@ -23,6 +23,7 @@ export const seasonResult = defineType({
           { title: "Svenska Cupen", value: "SC" },
           { title: "YMG", value: "YMG" },
           { title: "VM", value: "VM" },
+          { title: "Junior-VM", value: "JVM" },
           { title: "OS", value: "OS" },
           { title: "SM", value: "SM"},
           { title: "Övrigt", value: "OTHER" },
